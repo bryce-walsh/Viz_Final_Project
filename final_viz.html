@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.background {
+  fill: none;
+  stroke: #e4e5eb;
+  pointer-events: all;
+}
+
+#map{
+    position: absolute;
+    top: 15%;
+    left: 45%;
+}
+
+#toggles{
+    position: absolute;
+    top: 15%;
+    left: 5%;
+    fill: black;
+    background-color: #e4e5eb;
+}
+
+#timeline{
+    position: absolute;
+    top: 95%;
+    left: 7%;
+    fill: white;
+    stroke: black;
+    width: 100%;
+}
+
+</style>
+<body>
+<!-- Load d3.js -->
+<script src="js/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+
+<!-- Create an element where the map will take place -->
+<h1></h1></br>
+<svg id="map" width="600" height="450"></svg>
+<svg id="toggles" width="400" height = "200"></svg>
+<svg id="timeline"></svg>
+
+<script>
+
+// Title, centered
+var title = d3.select("h1")
+    .text("Bloop")
+    .style("text-align", "center")
+    .style("font-family", "optima");
+
+// The svg for map
+var svg = d3.select("#map"),
+  width = +svg.attr("width"),
+  height = +svg.attr("height");
+
+// Background
+svg.append("rect")
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height)
+
+// Map and projection
+var path = d3.geoPath();
+var projection = d3.geoMercator()
+  .scale(95)
+  .center([0,20])
+  .translate([width / 2, height / 2]);
+
+// Enable map zoom
+var zoom = d3.zoom()
+    .scaleExtent([1, 8])
+    .on("zoom", zoomed);
+var g = svg.append("g");
+svg.call(zoom);
+
+// Data and color scale
+var data = d3.map();
+var colorScale = d3.scaleThreshold()
+  .domain([100000, 1000000, 10000000, 30000000, 100000000, 500000000])
+  .range(d3.schemeBlues[7]);
+
+// Load external data and boot
+d3.queue()
+  .defer(d3.json, "js/world.geojson")
+  .defer(d3.csv, "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world_population.csv", function(d) { data.set(d.code, +d.pop); })
+  .await(ready);
+
+function ready(error, topo) {
+
+  // Draw the map
+    g.selectAll("path")
+    .data(topo.features)
+    .enter()
+    .append("path")
+      // draw each country
+      .attr("d", d3.geoPath()
+        .projection(projection)
+      )
+      // set the color of each country
+      .attr("fill", function (d) {
+        d.total = data.get(d.id) || 0;
+        return colorScale(d.total);
+      })
+}
+
+// Draw four rectangles and labels for matrix key
+svg.append("rect")
+    .attr("width", 23)
+    .attr("height", 23)
+    .attr("x", 30)
+    .attr("y", height - 50)
+    .attr("fill", "#5ca166");
+svg.append("rect")
+    .attr("width", 23)
+    .attr("height", 23)
+    .attr("x", 55)
+    .attr("y", height - 50)
+    .attr("fill", "#80c7ed");
+svg.append("rect")
+    .attr("width", 23)
+    .attr("height", 23)
+    .attr("x", 30)
+    .attr("y", height - 75)
+    .attr("fill", "#f0e784");
+svg.append("rect")
+    .attr("width", 23)
+    .attr("height", 23)
+    .attr("x", 55)
+    .attr("y", height - 75)
+    .attr("fill", "#992e2e");
+svg.append("text")
+	.style("fill", "black")
+	.style("font-family", "optima")
+    .style("font-size", "11px")
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .attr("transform", "translate(16,378) rotate(270)")
+    .text("GHG Emissions -->");
+svg.append("text")
+	.style("fill", "black")
+	.style("font-family", "optima")
+    .style("font-size", "11px")
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .attr("transform", "translate(65,435) rotate(0)")
+    .text("Gain Index -->");
+
+// Draw timeline for time series data. TO DO:
+// Simple for loop to add 18 circles representing 1995-2012
+// Add labels to circles
+// Make circles clickable
+// Highlight circle on mouseover
+var timeline = d3.select("#timeline")
+	.append("line")
+	.attr("x1", 0)
+	.attr("y1", 0)
+	.attr("x2", 1000)
+	.attr("y2", 0)
+	.attr("stroke-width", 5)
+	.attr("stroke", "black");
+
+// Mouse zoom
+function zoomed() {
+  g.style("stroke-width", 1.5 / d3.event.transform.k + "px");
+  g.attr("transform", d3.event.transform);
+}
+
+function stopped() {
+  if (d3.event.defaultPrevented) d3.event.stopPropagation();
+}
+
+</script>
+</body>
