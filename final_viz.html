@@ -78,7 +78,7 @@ svg.call(zoom);
 
 // Data and color scale
 var gainData = d3.map();
-//var ghgData = d3.map();
+var ghgData = d3.map();
 var colorScale = d3.scaleLinear()
   .domain(d3.ticks(25,80, 2))
   .range(['white', 'blue']);
@@ -87,11 +87,10 @@ var colorScale = d3.scaleLinear()
 d3.queue()
   .defer(d3.json, "js/world.geojson")
   .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[2016]); })
-  //.defer(d3.csv, "Emissions_Data/historical_emissions.csv", function(d) {console.log(d); ghgData.set(d.ISO3, +d[2016]); })
+  .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[2016]); })
   .await(ready);
 
 function ready(error, topo) {
-
   // Draw the map
     g.selectAll("path")
     .data(topo.features)
@@ -103,7 +102,7 @@ function ready(error, topo) {
       )
       // set the color of each country
       .attr("fill", function (d) {
-        d.total = gainData.get(d.id) || 0;
+        d.total = ghgData.get(d.id) || 0;
         return colorScale(d.total);
       })
 }

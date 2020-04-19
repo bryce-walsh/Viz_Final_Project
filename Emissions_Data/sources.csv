@@ -1,0 +1,19 @@
+Source,Property,Value
+historical_emissions_cait,Published Title (If not English),N/A
+historical_emissions_cait,Published Language,English
+historical_emissions_cait,Citation,"CAIT Climate Data Explorer. 2019. Country Greenhouse Gas Emissions. Washington, DC: World Resources Institute. Available online at: http://cait.wri.org"
+historical_emissions_cait,Link to License or Terms of Service,https://creativecommons.org/licenses/by/4.0/
+historical_emissions_cait,Summary of License,Creative Commons Attribution-NonCommercial 4.0 International license
+historical_emissions_cait,Frequency of Updates: annual; every x years/months/days; no updates planned,Annual
+historical_emissions_cait,Date of Content: List all years; for multiple years (2001 - 2014),1990-2016
+historical_emissions_cait,Geographic Coverage: global; quasi-global; select regions/countries,Global
+historical_emissions_cait,Cautions: Known use limitations/cautions regarding: geographic/content coverage; source (inconsistency); methodology ,"CAIT data are derived from several sources. Any use of the Land-Use Change and Forestry or Agriculture indicator should be cited as FAO 2019, FAOSTAT Emissions Database. Any use of CO2 emissions from fuel combustion data should be cited as CO2 Emissions from Fuel Combustion, OECD/IEA, 2018. As of March 2020, emissions from European Union (27) for all years no longer includes emissions from United Kingdom on Climate Watch."
+historical_emissions_cait,"Description: 
+Recap data name, source organization
+Objectives/ data type/ Methodology","As of December 2019, CAIT Historical Emission data contains sector-level greenhouse gas (GHG) emissions data for 185 countries and the European Union (EU) for the period 1990-2016, including emissions of the six major GHGs from most major sources and sinks. See http://cait.wri.org/docs/CAIT2.0_CountryGHG_Methods.pdf for details regarding data source and methodology."
+historical_emissions_cait,"Function/Summary: Tagline description of what data says 
+(150 character limit)",Historical country-level and sectoral GHG emission data (1990-2016)
+historical_emissions_cait,Learn More Link,http://cait.wri.org/historical/
+historical_emissions_cait,Source Organization,World Resources Institute
+historical_emissions_cait,Technical Title,CAIT Country Greenhouse Gas Emissions Data (1990-2016)
+historical_emissions_cait,Title (75 character limit),CAIT Historical Emissions
