@@ -32,7 +32,7 @@
 }
 
 </style>
-<body>
+<body>s
 <!-- Load d3.js -->
 <script src="js/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
@@ -42,8 +42,7 @@
 <h1></h1></br>
 <svg id="map" width="600" height="450"></svg>
 <svg id="toggles" width="400" height = "200"></svg>
-<svg id="timeline"></svg>
-
+<svg id="timeline" width="1000" height = "100"></svg>
 <script>
 
 // Title, centered
@@ -151,12 +150,36 @@ svg.append("text")
     .attr("transform", "translate(65,435) rotate(0)")
     .text("Gain Index -->");
 
+var timeline_array = [
+  {cx: 0, cy: 15, r: 10},
+  {cx: 1, cy: 15, r: 10},
+  {cx: 2, cy: 15, r: 10},
+  {cx: 3, cy: 15, r: 10},
+  {cx: 4, cy: 15, r: 10},
+  {cx: 5, cy: 15, r: 10},
+  {cx: 6, cy: 15, r: 10},
+  {cx: 7, cy: 15, r: 10},
+  {cx: 8, cy: 15, r: 10},
+  {cx: 9, cy: 15, r: 10},
+  {cx: 10, cy: 15, r: 10},
+  {cx: 11, cy: 15, r: 10},
+  {cx: 12, cy: 15, r: 10},
+  {cx: 13, cy: 15, r: 10},
+  {cx: 14, cy: 15, r: 10},
+  {cx: 15, cy: 15, r: 10},
+  {cx: 16, cy: 15, r: 10},
+  {cx: 17, cy: 15, r: 10}
+
+];
 // Draw timeline for time series data. TO DO:
 // Simple for loop to add 18 circles representing 1995-2012
 // Add labels to circles
 // Make circles clickable
 // Highlight circle on mouseover
-var timeline = d3.select("#timeline")
+var timeline_svg = d3.select("#timeline"),
+  width = +svg.attr("width"),
+  height = +svg.attr("height");
+/*var timeline = d3.select("#timeline")
 	.append("line")
 	.attr("x1", 0)
 	.attr("y1", 0)
@@ -164,8 +187,63 @@ var timeline = d3.select("#timeline")
 	.attr("y2", 0)
 	.attr("stroke-width", 5)
 	.attr("stroke", "black");
+var circle_line = d3.select("#circles")
+                    .append("svg")
+                    .attr("width", 1000)
+                    .attr("height", 100);*/
+var year_line = [];
+var gap = 1000/17;
+var circles = timeline_svg.selectAll('circle')
+                .data(timeline_array)
+                .enter()
+                .append('circle')
+                  .attr('cx', function(d){
+                    return (d.cx * gap + 15);
+                  })
+                  .attr('cy', function(d){
+                    return (d.cy);
+                  })
+                  .attr('r', function(d){
+                    return (d.r);
+                  })
+                  .on('mouseover', handleMouseOver)
+                  .on('mouseout', handleMouseOut)
+                  .on('click', handleMouseClick);
 
-// Mouse zoom
+var text = timeline_svg.selectAll("text")
+                    .data(timeline_array)
+                    .enter()
+                    .append("text");
+var textLabels = text
+            .attr('x', function(d) {return d.cx * gap})
+            .attr('y',40)
+            .text( function (d, i) { return String(i + 1995); })
+            .attr("font-family", "monospace")
+            .attr("font-size", "14px")
+            .attr("fill", "black");
+
+function changeFill(selection) { selection.attr("fill", "orange"); }
+function changeFillback(selection) { selection.attr("fill", "white"); }
+
+function handleMouseOver(d, i){
+  // Specify where to put label of text
+      // Use D3 to select element, change color and size
+            d3.select(this)
+            .call(changeFill);
+}
+function handleMouseClick(d, i){
+  // Specify where to put label of text
+      // Use D3 to select element, change color and size
+      alert(d.cx)
+            
+
+}
+
+function handleMouseOut(d, i) {
+            // Use D3 to select element, change color back to normal
+            d3.select(this)
+            .call(changeFillback)
+          }
 function zoomed() {
   g.style("stroke-width", 1.5 / d3.event.transform.k + "px");
   g.attr("transform", d3.event.transform);
@@ -177,3 +255,11 @@ function stopped() {
 
 </script>
 </body>
+
+
+
+
+
+
+
+
