@@ -32,7 +32,7 @@
 }
 
 </style>
-<body>s
+<body>
 <!-- Load d3.js -->
 <script src="js/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
@@ -66,7 +66,7 @@ svg.append("rect")
 var path = d3.geoPath();
 var projection = d3.geoMercator()
   .scale(95)
-  .center([0,20])
+  .center([0,40])
   .translate([width / 2, height / 2]);
 
 // Enable map zoom
@@ -80,7 +80,7 @@ svg.call(zoom);
 var gainData = d3.map();
 var ghgData = d3.map();
 var colorScale = d3.scaleLinear()
-  .domain(d3.ticks(25,80, 2))
+  .domain([-10, 11000])
   .range(['white', 'blue']);
 
 // Load external data and boot
@@ -101,10 +101,7 @@ function ready(error, topo) {
         .projection(projection)
       )
       // set the color of each country
-      .attr("fill", function (d) {
-        d.total = ghgData.get(d.id) || 0;
-        return colorScale(d.total);
-      })
+      fillCountryColor();
 }
 
 // Draw four rectangles and labels for matrix key
@@ -150,24 +147,28 @@ svg.append("text")
     .text("Gain Index -->");
 
 var timeline_array = [
-  {cx: 0, cy: 15, r: 10},
-  {cx: 1, cy: 15, r: 10},
-  {cx: 2, cy: 15, r: 10},
-  {cx: 3, cy: 15, r: 10},
-  {cx: 4, cy: 15, r: 10},
-  {cx: 5, cy: 15, r: 10},
-  {cx: 6, cy: 15, r: 10},
-  {cx: 7, cy: 15, r: 10},
-  {cx: 8, cy: 15, r: 10},
-  {cx: 9, cy: 15, r: 10},
-  {cx: 10, cy: 15, r: 10},
-  {cx: 11, cy: 15, r: 10},
-  {cx: 12, cy: 15, r: 10},
-  {cx: 13, cy: 15, r: 10},
-  {cx: 14, cy: 15, r: 10},
-  {cx: 15, cy: 15, r: 10},
-  {cx: 16, cy: 15, r: 10},
-  {cx: 17, cy: 15, r: 10}
+  {cx: 0, cy: 15, r: 5},
+  {cx: 1, cy: 15, r: 5},
+  {cx: 2, cy: 15, r: 5},
+  {cx: 3, cy: 15, r: 5},
+  {cx: 4, cy: 15, r: 5},
+  {cx: 5, cy: 15, r: 5},
+  {cx: 6, cy: 15, r: 5},
+  {cx: 7, cy: 15, r: 5},
+  {cx: 8, cy: 15, r: 5},
+  {cx: 9, cy: 15, r: 5},
+  {cx: 10, cy: 15, r: 5},
+  {cx: 11, cy: 15, r: 5},
+  {cx: 12, cy: 15, r: 5},
+  {cx: 13, cy: 15, r: 5},
+  {cx: 14, cy: 15, r: 5},
+  {cx: 15, cy: 15, r: 5},
+  {cx: 16, cy: 15, r: 5},
+  {cx: 17, cy: 15, r: 5},
+  {cx: 18, cy: 15, r: 5},
+  {cx: 19, cy: 15, r: 5},
+  {cx: 20, cy: 15, r: 5},
+  {cx: 21, cy: 15, r: 5},
 
 ];
 // Draw timeline for time series data. TO DO:
@@ -178,20 +179,20 @@ var timeline_array = [
 var timeline_svg = d3.select("#timeline"),
   width = +svg.attr("width"),
   height = +svg.attr("height");
-/*var timeline = d3.select("#timeline")
+var timeline = d3.select("#timeline")
 	.append("line")
 	.attr("x1", 0)
-	.attr("y1", 0)
-	.attr("x2", 1000)
-	.attr("y2", 0)
-	.attr("stroke-width", 5)
+	.attr("y1", 15)
+	.attr("x2", 1035)
+	.attr("y2", 15)
+	.attr("stroke-width", 1.5)
 	.attr("stroke", "black");
-var circle_line = d3.select("#circles")
+/*var circle_line = d3.select("#circles")
                     .append("svg")
                     .attr("width", 1000)
                     .attr("height", 100);*/
 var year_line = [];
-var gap = 1000/17;
+var gap = 1000/21;
 var circles = timeline_svg.selectAll('circle')
                 .data(timeline_array)
                 .enter()
@@ -218,7 +219,7 @@ var textLabels = text
             .attr('y',40)
             .text( function (d, i) { return String(i + 1995); })
             .attr("font-family", "monospace")
-            .attr("font-size", "14px")
+            .attr("font-size", "12px")
             .attr("fill", "black");
 
 function changeFill(selection) { selection.attr("fill", "orange"); }
@@ -233,16 +234,21 @@ function handleMouseOver(d, i){
 function handleMouseClick(d, i){
   // Specify where to put label of text
       // Use D3 to select element, change color and size
-      alert(d.cx)
-            
-
+      var year = d.cx + 1995;
+      d3.queue()
+        .defer(d3.json, "js/world.geojson")
+        .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
+        .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[year]); })
+        .await(ready);
 }
 
 function handleMouseOut(d, i) {
             // Use D3 to select element, change color back to normal
             d3.select(this)
             .call(changeFillback)
-          }
+}
+
+// Zoom map upon mouse zoom
 function zoomed() {
   g.style("stroke-width", 1.5 / d3.event.transform.k + "px");
   g.attr("transform", d3.event.transform);
@@ -250,6 +256,37 @@ function zoomed() {
 
 function stopped() {
   if (d3.event.defaultPrevented) d3.event.stopPropagation();
+}
+
+function fillCountryColor() {
+  g.selectAll("path")
+    .attr("fill", function (d) {
+          var ghgMidpoint = 45;
+          var gainMidpoint = 48;
+          if (typeof ghgData.get(d.id) == 'undefined' || typeof gainData.get(d.id) == 'undefined') {
+            return "white";
+          } else if (ghgData.get(d.id) <= ghgMidpoint && gainData.get(d.id) <= gainMidpoint) {
+            // green
+            return "#5ca166";
+          } else if (ghgData.get(d.id) > ghgMidpoint && gainData.get(d.id) <= gainMidpoint) {
+            // yellow
+            return "#f0e784";
+          } else if (ghgData.get(d.id) <= ghgMidpoint && gainData.get(d.id) > gainMidpoint) {
+            // blue
+            return "#80c7ed";
+          } else if (ghgData.get(d.id) > ghgMidpoint && gainData.get(d.id) > gainMidpoint) {
+            // red
+            return "#992e2e";
+          } else {
+            return "white";
+          }
+        })
+}
+
+// Determine color of country
+function valuesToColor(ghgVal, gainVal) {
+  // Specific to 2016 though... 
+
 }
 
 </script>
