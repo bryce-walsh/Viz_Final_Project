@@ -78,7 +78,8 @@ var g = svg.append("g");
 svg.call(zoom);
 
 // Data and color scale
-var data = d3.map();
+var gainData = d3.map();
+//var ghgData = d3.map();
 var colorScale = d3.scaleLinear()
   .domain(d3.ticks(25,80, 2))
   .range(['white', 'blue']);
@@ -86,7 +87,8 @@ var colorScale = d3.scaleLinear()
 // Load external data and boot
 d3.queue()
   .defer(d3.json, "js/world.geojson")
-  .defer(d3.csv, "ND_GAIN_Data/gain/gainTest.csv", function(d) { console.log(d); data.set(d.ISO3, +d.y1995); })
+  .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[2016]); })
+  //.defer(d3.csv, "Emissions_Data/historical_emissions.csv", function(d) {console.log(d); ghgData.set(d.ISO3, +d[2016]); })
   .await(ready);
 
 function ready(error, topo) {
@@ -102,9 +104,7 @@ function ready(error, topo) {
       )
       // set the color of each country
       .attr("fill", function (d) {
-        d.total = data.get(d.id) || 0;
-        console.log(d.total)
-        console.log(colorScale(d.total))
+        d.total = gainData.get(d.id) || 0;
         return colorScale(d.total);
       })
 }
