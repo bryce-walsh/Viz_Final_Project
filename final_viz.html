@@ -37,12 +37,13 @@
 <script src="js/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
-
+<script src="js/d3.button.js"></script>
 <!-- Create an element where the map will take place -->
 <h1></h1></br>
 <svg id="map" width="600" height="450"></svg>
-<svg id="toggles" width="400" height = "200"></svg>
-<svg id="timeline" width="1000" height = "100"></svg>
+<svg id="toggles" width="350" height ="300"></svg>
+<svg id="timeline" width="1000" height ="100"></svg>
+<div id="vis"></div>
 <script>
 
 // Title, centered
@@ -187,6 +188,8 @@ var timeline = d3.select("#timeline")
 	.attr("y2", 15)
 	.attr("stroke-width", 1.5)
 	.attr("stroke", "black");
+
+var cur_year = 2016;
 /*var circle_line = d3.select("#circles")
                     .append("svg")
                     .attr("width", 1000)
@@ -235,6 +238,7 @@ function handleMouseClick(d, i){
   // Specify where to put label of text
       // Use D3 to select element, change color and size
       var year = d.cx + 1995;
+      cur_year = year
       d3.queue()
         .defer(d3.json, "js/world.geojson")
         .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
@@ -247,6 +251,57 @@ function handleMouseOut(d, i) {
             d3.select(this)
             .call(changeFillback)
 }
+
+var button_svg = d3.select('#toggles'),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+var cbox1 = "<input type='checkbox' id='emissions' name='emissions' value='emissions'> <label for='emissions'> Emissions</label><br>"
+var cbox2 = "<input type='checkbox' id='gain' name='gain' value='Gain'> <label for='gain'> Gain</label><br>"
+
+var button1 = "<input type='button' onclick='dispEmissions()' id='emissions' name='emissions' value='Emissions'><br>"
+var button2 = "<input type='button' onclick='dispGain()' id='gain' name='gain' value='Gain'><br>"
+var button3 = "<input type='button' onclick='dispCombo()' id='combo' name='combo' value='Combination Matrix'> <br>"
+
+button_svg.append("text")
+    .attr("x", 156)
+    .attr("y", 20)
+    .text("Toggle")
+
+/*button_svg.append("foreignObject")
+    .attr("width", 200)
+    .attr("height", 100)
+    .attr("y", 50)
+  .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html(cbox1 + cbox2);*/
+
+button_svg.append("foreignObject")
+    .attr("width", 400)
+    .attr("height", 100)
+    .attr("x", 147)
+    .attr("y", 90)
+  .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html(button1);
+
+button_svg.append("foreignObject")
+    .attr("width", 400)
+    .attr("height", 100)
+    .attr("x", 158)
+    .attr("y", 120)
+  .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html(button2);
+
+button_svg.append("foreignObject")
+    .attr("width", 400)
+    .attr("height", 100)
+    .attr("x", 120)
+    .attr("y", 150)
+  .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html(button3);
 
 // Zoom map upon mouse zoom
 function zoomed() {
@@ -281,6 +336,28 @@ function fillCountryColor() {
             return "white";
           }
         })
+}
+
+function dispGain(){
+    d3.queue()
+      .defer(d3.json, "js/world.geojson")
+      .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[cur_year]); })
+      .await(ready);
+}
+function dispEmissions(){
+    d3.queue()
+      .defer(d3.json, "js/world.geojson")
+      .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[cur_year]); })
+      .await(ready);
+}
+
+function dispCombo(){
+    d3.queue()
+      .defer(d3.json, "js/world.geojson")
+      .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[cur_year]); })
+      .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[cur_year]); })
+      .await(ready);
+
 }
 
 // Determine color of country
