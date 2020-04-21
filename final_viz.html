@@ -337,18 +337,78 @@ function fillCountryColor() {
           }
         })
 }
-
+function fillGainColor() {
+  g.selectAll("path")
+    .attr("fill", function (d) {
+          var gainMidpoint = 48;
+          if (typeof ghgData.get(d.id) == 'undefined' || typeof gainData.get(d.id) == 'undefined') {
+            return "white";
+          } else if (gainData.get(d.id) > gainMidpoint) {
+            // Green
+            return "#5ca166";
+          } else if (gainData.get(d.id) <= gainMidpoint) {
+            // red
+            return "#992e2e";
+          } else {
+            return "white";
+          }
+        })
+}
+function fillEmissionsColor() {
+  g.selectAll("path")
+    .attr("fill", function (d) {
+          var ghgMidpoint = 45;
+          var gainMidpoint = 48;
+          if (typeof ghgData.get(d.id) == 'undefined' || typeof gainData.get(d.id) == 'undefined') {
+            return "white";
+          } else if (ghgData.get(d.id) <= ghgMidpoint) {
+            // green
+            return "#5ca166";
+          } else if (ghgData.get(d.id) > ghgMidpoint) {
+            // red
+            return "#992e2e";
+          } else {
+            return "white";
+          }
+        })
+}
+function gainReady(error, topo) {
+  // Draw the map
+    g.selectAll("path")
+    .data(topo.features)
+    .enter()
+    .append("path")
+      // draw each country
+      .attr("d", d3.geoPath()
+        .projection(projection)
+      )
+      // set the color of each country
+      fillGainColor();
+}
+function emissionsReady(error, topo) {
+  // Draw the map
+    g.selectAll("path")
+    .data(topo.features)
+    .enter()
+    .append("path")
+      // draw each country
+      .attr("d", d3.geoPath()
+        .projection(projection)
+      )
+      // set the color of each country
+      fillEmissionsColor();
+}
 function dispGain(){
     d3.queue()
       .defer(d3.json, "js/world.geojson")
       .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[cur_year]); })
-      .await(ready);
+      .await(gainReady);
 }
 function dispEmissions(){
     d3.queue()
       .defer(d3.json, "js/world.geojson")
       .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[cur_year]); })
-      .await(ready);
+      .await(emissionsReady);
 }
 
 function dispCombo(){
