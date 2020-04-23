@@ -114,7 +114,7 @@ function ready(error, topo) {
         .projection(projection)
       )
       // set the color of each country
-      fillCountryColor();
+      reload_map();
 }
 
 // Draw four rectangles and labels for matrix key
@@ -336,17 +336,17 @@ function average(array) {
 }
 
 function fillCountryColor() {
-  displayPerCap = document.getElementById("per_capita").checked 
+  displayPerCap = document.getElementById("per_capita").checked;
   var ghgMidpoint = average(ghgData.values());
   var gainMidpoint = average(gainData.values());
   var perCapMidpoint = average(perCapGhgData.values());
   g.selectAll("path")
     .attr("fill", function (d) {
 
-          ghgVal = ghgData.get(d.id)
-          gainVal = gainData.get(d.id)
-          perCapGhgVal = perCapGhgData.get(d.id)
-          ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal 
+          ghgVal = ghgData.get(d.id);
+          gainVal = gainData.get(d.id);
+          perCapGhgVal = perCapGhgData.get(d.id);
+          ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal; 
 
           ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
 
