@@ -91,7 +91,7 @@ const DisplayType = {
    GAIN: 2,
    COMBO: 3
 };
-var display = DisplayType.Combination;
+var display = DisplayType.COMBO;
 
 // Load external data and boot
 function loadData(year) {
@@ -336,13 +336,12 @@ function average(array) {
 }
 
 function fillCountryColor() {
+  displayPerCap = document.getElementById("per_capita").checked 
   var ghgMidpoint = average(ghgData.values());
   var gainMidpoint = average(gainData.values());
   var perCapMidpoint = average(perCapGhgData.values());
-
   g.selectAll("path")
     .attr("fill", function (d) {
-          displayPerCap = document.getElementById("per_capita").checked 
 
           ghgVal = ghgData.get(d.id)
           gainVal = gainData.get(d.id)
@@ -388,11 +387,11 @@ function fillGainColor() {
         })
 }
 function fillEmissionsColor() {
+  displayPerCap = document.getElementById("per_capita").checked 
   var ghgMidpoint = average(ghgData.values());
   var perCapMidpoint = average(perCapGhgData.values());
   g.selectAll("path")
     .attr("fill", function (d) {
-          displayPerCap = document.getElementById("per_capita").checked 
 
           ghgVal = ghgData.get(d.id)
           perCapGhgVal = perCapGhgData.get(d.id)
@@ -413,32 +412,8 @@ function fillEmissionsColor() {
           }
         })
 }
-function gainReady(error, topo) {
-  // Draw the map
-    g.selectAll("path")
-    .data(topo.features)
-    .enter()
-    .append("path")
-      // draw each country
-      .attr("d", d3.geoPath()
-        .projection(projection)
-      )
-      // set the color of each country
-      fillGainColor();
-}
-function emissionsReady(error, topo) {
-  // Draw the map
-    g.selectAll("path")
-    .data(topo.features)
-    .enter()
-    .append("path")
-      // draw each country
-      .attr("d", d3.geoPath()
-        .projection(projection)
-      )
-      // set the color of each country
-      fillEmissionsColor();
-}
+
+
 function dispGain(){
     display = DisplayType.GAIN;
     reload_map();
