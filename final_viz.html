@@ -86,6 +86,12 @@ var colorScale = d3.scaleLinear()
 
 //Set up initial state
 loadData(2016);
+const DisplayType = {
+   EMISSIONS: 1,
+   GAIN: 2,
+   COMBO: 3
+};
+var display = DisplayType.Combination;
 
 // Load external data and boot
 function loadData(year) {
@@ -330,6 +336,10 @@ function average(array) {
 }
 
 function fillCountryColor() {
+  var ghgMidpoint = average(ghgData.values());
+  var gainMidpoint = average(gainData.values());
+  var perCapMidpoint = average(perCapGhgData.values());
+
   g.selectAll("path")
     .attr("fill", function (d) {
           displayPerCap = document.getElementById("per_capita").checked 
@@ -338,10 +348,6 @@ function fillCountryColor() {
           gainVal = gainData.get(d.id)
           perCapGhgVal = perCapGhgData.get(d.id)
           ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal 
-
-          var ghgMidpoint = average(ghgData.values());
-          var gainMidpoint = average(gainData.values());
-          var perCapMidpoint = average(perCapGhgData.values());
 
           ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
 
@@ -365,10 +371,10 @@ function fillCountryColor() {
         })
 }
 function fillGainColor() {
+  var gainMidpoint = average(gainData.values());
   g.selectAll("path")
     .attr("fill", function (d) {
-          var gainMidpoint = 48;
-          if (typeof ghgData.get(d.id) == 'undefined' || typeof gainData.get(d.id) == 'undefined') {
+          if (typeof gainData.get(d.id) == 'undefined') {
             return "white";
           } else if (gainData.get(d.id) > gainMidpoint) {
             // Green
@@ -382,16 +388,24 @@ function fillGainColor() {
         })
 }
 function fillEmissionsColor() {
+  var ghgMidpoint = average(ghgData.values());
+  var perCapMidpoint = average(perCapGhgData.values());
   g.selectAll("path")
     .attr("fill", function (d) {
-          var ghgMidpoint = 45;
-          var gainMidpoint = 48;
-          if (typeof ghgData.get(d.id) == 'undefined' || typeof gainData.get(d.id) == 'undefined') {
+          displayPerCap = document.getElementById("per_capita").checked 
+
+          ghgVal = ghgData.get(d.id)
+          perCapGhgVal = perCapGhgData.get(d.id)
+          ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal 
+
+          ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
+
+          if (typeof ghgDisplayVal == 'undefined') {
             return "white";
-          } else if (ghgData.get(d.id) <= ghgMidpoint) {
+          } else if (ghgDisplayVal <= ghgDisplayMidpoint) {
             // green
             return "#5ca166";
-          } else if (ghgData.get(d.id) > ghgMidpoint) {
+          } else if (ghgDisplayVal > ghgDisplayMidpoint) {
             // red
             return "#992e2e";
           } else {
@@ -426,29 +440,30 @@ function emissionsReady(error, topo) {
       fillEmissionsColor();
 }
 function dispGain(){
-    d3.queue()
-      .defer(d3.json, "js/world.geojson")
-      .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[cur_year]); })
-      .await(gainReady);
+    display = DisplayType.GAIN;
+    reload_map();
 }
 function dispEmissions(){
-    d3.queue()
-      .defer(d3.json, "js/world.geojson")
-      .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[cur_year]); })
-      .await(emissionsReady);
+    display = DisplayType.EMISSIONS;
+    reload_map();
 }
 
 function dispCombo(){
-    d3.queue()
-      .defer(d3.json, "js/world.geojson")
-      .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[cur_year]); })
-      .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[cur_year]); })
-      .await(ready);
-
+      display = DisplayType.COMBO;
+      reload_map();
 }
 
 function reload_map() {
-  fillCountryColor()
+    switch (display) {
+      case DisplayType.EMISSIONS:
+        fillEmissionsColor();
+        break;
+      case DisplayType.GAIN:
+        fillGainColor();
+        break;
+      case DisplayType.COMBO:
+        fillCountryColor()
+    }
 }
 
 
