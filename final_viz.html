@@ -158,6 +158,20 @@ svg.append("text")
     .attr("text-anchor", "middle")
     .attr("transform", "translate(65,435) rotate(0)")
     .text("Gain Index -->");
+svg.append("rect")
+    .attr("width", 23)
+    .attr("height", 23)
+    .attr("x", 130)
+    .attr("y", height - 50)
+    .attr("fill", "lightgrey");
+svg.append("text")
+  .style("fill", "black")
+  .style("font-family", "optima")
+    .style("font-size", "11px")
+    .attr("dy", ".35em")
+    .attr("text-anchor", "left")
+    .attr("transform", "translate(130,435) rotate(0)")
+    .text("No Data");
 
 var timeline_array = [
   {cx: 0, cy: 15, r: 5},
@@ -348,14 +362,10 @@ function fillCountryColor() {
           perCapGhgVal = perCapGhgData.get(d.id);
           ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal; 
 
-          if (d.id == "GRL") {
-            console.log("ghgVal: ", ghgVal, "gainVal: ", gainVal, "perCapGhgVal: ", perCapGhgVal);
-          }
-
           ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
 
           if (typeof ghgDisplayVal == 'undefined' || typeof gainVal == 'undefined') {
-            return "grey";
+            return "lightgrey";
           } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal <= gainMidpoint) {
             // green
             return "#5ca166";
@@ -369,7 +379,7 @@ function fillCountryColor() {
             // red
             return "#992e2e";
           } else {
-            return "grey";
+            return "black";
           }
         })
 }
@@ -378,7 +388,7 @@ function fillGainColor() {
   g.selectAll("path")
     .attr("fill", function (d) {
           if (typeof gainData.get(d.id) == 'undefined') {
-            return "grey";
+            return "lightgrey";
           } else if (gainData.get(d.id) > gainMidpoint) {
             // Green
             return "#5ca166";
@@ -386,7 +396,7 @@ function fillGainColor() {
             // red
             return "#992e2e";
           } else {
-            return "purple";
+            return "black";
           }
         })
 }
@@ -404,7 +414,7 @@ function fillEmissionsColor() {
           ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
 
           if (typeof ghgDisplayVal == 'undefined') {
-            return "grey";
+            return "lightgrey";
           } else if (ghgDisplayVal <= ghgDisplayMidpoint) {
             // green
             return "#5ca166";
@@ -412,7 +422,7 @@ function fillEmissionsColor() {
             // red
             return "#992e2e";
           } else {
-            return "purple";
+            return "black";
           }
         })
 }
