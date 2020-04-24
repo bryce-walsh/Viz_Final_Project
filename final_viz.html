@@ -85,15 +85,41 @@ var ghgColorScale;
 var perCapGhgColorScale;
 
 //Color Constants
-// const BOTTOM_LEFT = "#5ca166";
-// const TOP_LEFT = "#f0e784";
-// const BOTTOM_RIGHT = "#80c7ed";
-// const TOP_RIGHT = "#992e2e";
+// Original Colors
+// const BOTTOM_LEFT = "#5ca166"; //Green
+// const TOP_LEFT = "#f0e784"; //Yellow
+// const BOTTOM_RIGHT = "#80c7ed"; //Blue
+// const TOP_RIGHT = "#992e2e"; //Red
+// const NO_DATA = "lightgrey";
 
-const BOTTOM_LEFT = "#80c7ed";
-const TOP_LEFT = "#992e2e";
-const BOTTOM_RIGHT = "#f0e784";
-const TOP_RIGHT = "#5ca166";
+//Potential alternative, makes low risk high emissions red
+// const BOTTOM_LEFT = "#80c7ed"; //Blue
+// const TOP_LEFT = "#992e2e"; //Red
+// const BOTTOM_RIGHT = "#f0e784"; //Yellow
+// const TOP_RIGHT = "#5ca166"; //Green
+// const NO_DATA = "lightgrey";
+
+//Potential alternative, maintains property from above but makes it so that high risk high emissions isn't green
+// const BOTTOM_LEFT = "#80c7ed"; //Blue
+// const TOP_LEFT = "#992e2e"; //Red
+// const BOTTOM_RIGHT = "#ff7000" //Orange
+// const TOP_RIGHT = "#ffeb13"; //More Vibrant Yellow
+// const NO_DATA = "lightgrey";
+
+//Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=PRGn&n=11
+// const BOTTOM_LEFT = "grey"; //Grey
+// const TOP_LEFT = "#40004b"; //Purple
+// const BOTTOM_RIGHT = "#00441b" //Green
+// const TOP_RIGHT = "#000000"; //Black
+// const NO_DATA = "lightgrey";
+
+//Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=7
+const BOTTOM_LEFT = "#b1b1b1"; //Grey
+const TOP_LEFT = "#8c510a"; //Brown
+const BOTTOM_RIGHT = "#01665e" //Teal
+const TOP_RIGHT = "#000000"; //Black
+const NO_DATA = "white";
+
 
 //Set up initial state
 loadData(2016);
@@ -117,16 +143,14 @@ function loadData(year) {
 
 function set_up_color_scales() {
   gainColorScale = d3.scaleLinear()
-              .domain([20, 50])
-              //Green to Blue because GAIN index is backwards from risk
+              .domain([20, 76])
+              //Right to Left because GAIN index is backwards from risk
               .range([BOTTOM_RIGHT, BOTTOM_LEFT]);
   ghgColorScale =  d3.scaleLinear()
-              .domain([-100, 6500])
-              //Green to Yellow
+              .domain([-100, 12000])
               .range([BOTTOM_LEFT, TOP_LEFT]);
   perCapGhgColorScale = d3.scaleLinear()
               .domain([0, 35])
-              //Green to Yellow
               .range([BOTTOM_LEFT, TOP_LEFT]);
 }
 
@@ -140,6 +164,8 @@ function ready(error, topo) {
       .attr("d", d3.geoPath()
         .projection(projection)
       )
+      .style("stroke", "black")
+      .style("stroke-width", .25)
       // set the color of each country
       set_up_color_scales();
       reload_map();
@@ -151,7 +177,7 @@ svg.append("rect")
     .attr("height", 23)
     .attr("x", 30)
     .attr("y", height - 50)
-    .attr("fill", BOTTOM_LEFT);
+    .attr("fill", BOTTOM_LEFT)
 svg.append("rect")
     .attr("width", 23)
     .attr("height", 23)
@@ -191,7 +217,9 @@ svg.append("rect")
     .attr("height", 23)
     .attr("x", 130)
     .attr("y", height - 50)
-    .attr("fill", "lightgrey");
+    .attr("fill", NO_DATA)
+    .style("stroke", "black")
+    .style("stroke-width", 1);
 svg.append("text")
   .style("fill", "black")
   .style("font-family", "optima")
@@ -393,18 +421,14 @@ function fillCountryColor() {
           ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
 
           if (typeof ghgDisplayVal == 'undefined' || typeof gainVal == 'undefined') {
-            return "lightgrey";
+            return NO_DATA;
           } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal >= gainMidpoint) {
-            // green
             return BOTTOM_LEFT;
           } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal >= gainMidpoint) {
-            // yellow
             return TOP_LEFT;
           } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal < gainMidpoint) {
-            // blue
             return BOTTOM_RIGHT;
           } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal < gainMidpoint) {
-            // red
             return TOP_RIGHT;
           } else {
             return "black";
@@ -416,7 +440,7 @@ function fillGainColor() {
   g.selectAll("path")
     .attr("fill", function (d) {
           if (typeof gainData.get(d.id) == 'undefined') {
-            return "lightgrey";
+            return NO_DATA;
           } else {
             return gainColorScale(gainData.get(d.id));
           }
@@ -426,16 +450,12 @@ function fillEmissionsColor() {
   displayPerCap = document.getElementById("per_capita").checked 
   g.selectAll("path")
     .attr("fill", function (d) {
-
           ghgVal = ghgData.get(d.id);
-          if(d.id == "USA") {
-            console.log(ghgVal)
-          }
           perCapGhgVal = perCapGhgData.get(d.id);
           ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal ;
           ghgDisplayColorScale = displayPerCap ? perCapGhgColorScale : ghgColorScale;
           if (typeof ghgDisplayVal == 'undefined') {
-            return "lightgrey";
+            return NO_DATA;
           } else {
             return ghgDisplayColorScale(ghgDisplayVal);
           }
