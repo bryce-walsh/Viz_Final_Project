@@ -99,7 +99,7 @@ function loadData(year) {
   .defer(d3.json, "js/world.geojson")
   .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[year]); })
-  .defer(d3.csv, "Emissions_Data/emissions_per_cap.csv", function(d) {perCapGhgData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "Emissions_Data/emissions_per_cap_no_nans.csv", function(d) {perCapGhgData.set(d.ISO3, +d[year]); })
   .await(ready);
 }
 
@@ -348,10 +348,14 @@ function fillCountryColor() {
           perCapGhgVal = perCapGhgData.get(d.id);
           ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal; 
 
+          if (d.id == "GRL") {
+            console.log("ghgVal: ", ghgVal, "gainVal: ", gainVal, "perCapGhgVal: ", perCapGhgVal);
+          }
+
           ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
 
           if (typeof ghgDisplayVal == 'undefined' || typeof gainVal == 'undefined') {
-            return "white";
+            return "grey";
           } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal <= gainMidpoint) {
             // green
             return "#5ca166";
@@ -365,7 +369,7 @@ function fillCountryColor() {
             // red
             return "#992e2e";
           } else {
-            return "white";
+            return "grey";
           }
         })
 }
@@ -374,7 +378,7 @@ function fillGainColor() {
   g.selectAll("path")
     .attr("fill", function (d) {
           if (typeof gainData.get(d.id) == 'undefined') {
-            return "white";
+            return "grey";
           } else if (gainData.get(d.id) > gainMidpoint) {
             // Green
             return "#5ca166";
@@ -382,7 +386,7 @@ function fillGainColor() {
             // red
             return "#992e2e";
           } else {
-            return "white";
+            return "purple";
           }
         })
 }
@@ -400,7 +404,7 @@ function fillEmissionsColor() {
           ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
 
           if (typeof ghgDisplayVal == 'undefined') {
-            return "white";
+            return "grey";
           } else if (ghgDisplayVal <= ghgDisplayMidpoint) {
             // green
             return "#5ca166";
@@ -408,7 +412,7 @@ function fillEmissionsColor() {
             // red
             return "#992e2e";
           } else {
-            return "white";
+            return "purple";
           }
         })
 }
