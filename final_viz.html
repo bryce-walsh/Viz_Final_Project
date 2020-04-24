@@ -157,7 +157,7 @@ svg.append("text")
     .attr("dy", ".35em")
     .attr("text-anchor", "middle")
     .attr("transform", "translate(65,435) rotate(0)")
-    .text("Gain Index -->");
+    .text("Risk Index -->");
 svg.append("rect")
     .attr("width", 23)
     .attr("height", 23)
@@ -366,16 +366,16 @@ function fillCountryColor() {
 
           if (typeof ghgDisplayVal == 'undefined' || typeof gainVal == 'undefined') {
             return "lightgrey";
-          } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal <= gainMidpoint) {
+          } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal >= gainMidpoint) {
             // green
             return "#5ca166";
-          } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal <= gainMidpoint) {
+          } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal >= gainMidpoint) {
             // yellow
             return "#f0e784";
-          } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal > gainMidpoint) {
+          } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal < gainMidpoint) {
             // blue
             return "#80c7ed";
-          } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal > gainMidpoint) {
+          } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal < gainMidpoint) {
             // red
             return "#992e2e";
           } else {
