@@ -80,9 +80,9 @@ svg.call(zoom);
 var gainData = d3.map();
 var ghgData = d3.map();
 var perCapGhgData = d3.map();
-var colorScale = d3.scaleLinear()
-  .domain([-10, 11000])
-  .range(['white', 'blue']);
+var gainColorScale;
+var ghgColorScale;
+var perCapGhgColorScale;
 
 //Set up initial state
 loadData(2016);
@@ -103,6 +103,22 @@ function loadData(year) {
   .await(ready);
 }
 
+
+function set_up_color_scales() {
+  gainColorScale = d3.scaleLinear()
+              .domain([20, 50])
+              //Green to Blue because GAIN index is backwards from risk
+              .range(["#80c7ed", "#5ca166"]);
+  ghgColorScale =  d3.scaleLinear()
+              .domain([-100, 6500])
+              //Green to Yellow
+              .range(["#5ca166", "#f0e784"]);
+  perCapGhgColorScale = d3.scaleLinear()
+              .domain([0, 35])
+              //Green to Yellow
+              .range(["#5ca166", "#f0e784"]);
+}
+
 function ready(error, topo) {
   // Draw the map
     g.selectAll("path")
@@ -114,6 +130,7 @@ function ready(error, topo) {
         .projection(projection)
       )
       // set the color of each country
+      set_up_color_scales();
       reload_map();
 }
 
@@ -389,40 +406,27 @@ function fillGainColor() {
     .attr("fill", function (d) {
           if (typeof gainData.get(d.id) == 'undefined') {
             return "lightgrey";
-          } else if (gainData.get(d.id) > gainMidpoint) {
-            // Green
-            return "#5ca166";
-          } else if (gainData.get(d.id) <= gainMidpoint) {
-            // red
-            return "#992e2e";
           } else {
-            return "black";
+            return gainColorScale(gainData.get(d.id));
           }
         })
 }
 function fillEmissionsColor() {
   displayPerCap = document.getElementById("per_capita").checked 
-  var ghgMidpoint = average(ghgData.values());
-  var perCapMidpoint = average(perCapGhgData.values());
   g.selectAll("path")
     .attr("fill", function (d) {
 
-          ghgVal = ghgData.get(d.id)
-          perCapGhgVal = perCapGhgData.get(d.id)
-          ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal 
-
-          ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
-
+          ghgVal = ghgData.get(d.id);
+          if(d.id == "USA") {
+            console.log(ghgVal)
+          }
+          perCapGhgVal = perCapGhgData.get(d.id);
+          ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal ;
+          ghgDisplayColorScale = displayPerCap ? perCapGhgColorScale : ghgColorScale;
           if (typeof ghgDisplayVal == 'undefined') {
             return "lightgrey";
-          } else if (ghgDisplayVal <= ghgDisplayMidpoint) {
-            // green
-            return "#5ca166";
-          } else if (ghgDisplayVal > ghgDisplayMidpoint) {
-            // red
-            return "#992e2e";
           } else {
-            return "black";
+            return ghgDisplayColorScale(ghgDisplayVal);
           }
         })
 }
@@ -438,8 +442,8 @@ function dispEmissions(){
 }
 
 function dispCombo(){
-      display = DisplayType.COMBO;
-      reload_map();
+    display = DisplayType.COMBO;
+    reload_map();
 }
 
 function reload_map() {
