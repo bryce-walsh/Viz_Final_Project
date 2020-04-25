@@ -10,25 +10,29 @@
 
 #map{
     position: absolute;
-    top: 15%;
-    left: 45%;
+    top: 13vh;
+    left: 25vw;
+    width: 70vw;
+    height: 70vh;
 }
 
 #toggles{
     position: absolute;
-    top: 15%;
-    left: 5%;
+    top: 13vh;
+    left: 5vw;
     fill: black;
-    background-color: #e4e5eb;
+    width: 15vw;
+    height: 25vh;
 }
 
 #timeline{
     position: absolute;
-    top: 95%;
-    left: 7%;
+    top: 87vh;
+    left: 4.5vw;
     fill: white;
     stroke: black;
-    width: 100%;
+    width: 100vw;
+    height:20vh;
 }
 
 </style>
@@ -39,11 +43,13 @@
 <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
 <!-- Create an element where the map will take place -->
 <h1></h1></br>
-<svg id="map" width="600" height="450"></svg>
-<svg id="toggles" width="350" height ="300"></svg>
-<svg id="timeline" width="1000" height ="100"></svg>
+<svg id="map"></svg>
+<svg id="toggles"></svg>
+<svg id="timeline"></svg>
 <div id="vis"></div>
 <script>
+
+window.onresize = function(){ ready(); }
 
 // Title, centered
 var title = d3.select("h1")
@@ -53,21 +59,21 @@ var title = d3.select("h1")
 
 // The svg for map
 var svg = d3.select("#map"),
-  width = +svg.attr("width"),
-  height = +svg.attr("height");
+  width = +svg.node().getBoundingClientRect().width,
+  height = +svg.node().getBoundingClientRect().height;
 
-// Background
+// Background for map
 svg.append("rect")
-    .attr("class", "background")
-    .attr("width", width)
-    .attr("height", height)
+      .attr("class", "background")
+      .attr("width", svg.node().getBoundingClientRect().width)
+      .attr("height", svg.node().getBoundingClientRect().height);
 
 // Map and projection
 var path = d3.geoPath();
 var projection = d3.geoMercator()
   .scale(95)
   .center([0,40])
-  .translate([width / 2, height / 2]);
+  .translate([svg.node().getBoundingClientRect().width / 2, svg.node().getBoundingClientRect().height / 2]);
 
 // Enable map zoom
 var zoom = d3.zoom()
@@ -84,41 +90,41 @@ var gainColorScale;
 var ghgColorScale;
 var perCapGhgColorScale;
 
-//Color Constants
-// Original Colors
-// const BOTTOM_LEFT = "#5ca166"; //Green
-// const TOP_LEFT = "#f0e784"; //Yellow
-// const BOTTOM_RIGHT = "#80c7ed"; //Blue
-// const TOP_RIGHT = "#992e2e"; //Red
-// const NO_DATA = "lightgrey";
+/*Color Constants
+Original Colors
+const BOTTOM_LEFT = "#5ca166"; //Green
+const TOP_LEFT = "#f0e784"; //Yellow
+const BOTTOM_RIGHT = "#80c7ed"; //Blue
+const TOP_RIGHT = "#992e2e"; //Red
+const NO_DATA = "lightgrey";*/
 
-//Potential alternative, makes low risk high emissions red
-// const BOTTOM_LEFT = "#80c7ed"; //Blue
-// const TOP_LEFT = "#992e2e"; //Red
-// const BOTTOM_RIGHT = "#f0e784"; //Yellow
-// const TOP_RIGHT = "#5ca166"; //Green
-// const NO_DATA = "lightgrey";
+/*Potential alternative, makes low risk high emissions red
+const BOTTOM_LEFT = "#80c7ed"; //Blue
+const TOP_LEFT = "#992e2e"; //Red
+const BOTTOM_RIGHT = "#f0e784"; //Yellow
+const TOP_RIGHT = "#5ca166"; //Green
+const NO_DATA = "lightgrey";*/
 
 //Potential alternative, maintains property from above but makes it so that high risk high emissions isn't green
-// const BOTTOM_LEFT = "#80c7ed"; //Blue
-// const TOP_LEFT = "#992e2e"; //Red
-// const BOTTOM_RIGHT = "#ff7000" //Orange
-// const TOP_RIGHT = "#ffeb13"; //More Vibrant Yellow
-// const NO_DATA = "lightgrey";
+const BOTTOM_LEFT = "#80c7ed"; //Blue
+const TOP_LEFT = "#992e2e"; //Red
+const BOTTOM_RIGHT = "#ff7000" //Orange
+const TOP_RIGHT = "#ffeb13"; //More Vibrant Yellow
+const NO_DATA = "lightgrey";
 
-//Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=PRGn&n=11
-// const BOTTOM_LEFT = "grey"; //Grey
-// const TOP_LEFT = "#40004b"; //Purple
-// const BOTTOM_RIGHT = "#00441b" //Green
-// const TOP_RIGHT = "#000000"; //Black
-// const NO_DATA = "lightgrey";
+/*Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=PRGn&n=11
+const BOTTOM_LEFT = "grey"; //Grey
+const TOP_LEFT = "#40004b"; //Purple
+const BOTTOM_RIGHT = "#00441b" //Green
+const TOP_RIGHT = "#000000"; //Black
+const NO_DATA = "lightgrey";*/
 
-//Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=7
+/*Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=7
 const BOTTOM_LEFT = "#b1b1b1"; //Grey
 const TOP_LEFT = "#8c510a"; //Brown
 const BOTTOM_RIGHT = "#01665e" //Teal
 const TOP_RIGHT = "#000000"; //Black
-const NO_DATA = "white";
+const NO_DATA = "white";*/
 
 
 //Set up initial state
@@ -155,6 +161,16 @@ function set_up_color_scales() {
 }
 
 function ready(error, topo) {
+  var projection = d3.geoMercator()
+                    .scale(95)
+                    .center([0,40])
+                    .translate([svg.node().getBoundingClientRect().width / 2, 
+                                svg.node().getBoundingClientRect().height / 2]);
+  // Background
+  svg.select("rect")
+      .attr("width", svg.node().getBoundingClientRect().width)
+      .attr("height", svg.node().getBoundingClientRect().height);
+
   // Draw the map
     g.selectAll("path")
     .data(topo.features)
@@ -164,7 +180,7 @@ function ready(error, topo) {
       .attr("d", d3.geoPath()
         .projection(projection)
       )
-      .style("stroke", "black")
+      .style("stroke", "gray")
       .style("stroke-width", .25)
       // set the color of each country
       set_up_color_scales();
@@ -175,83 +191,84 @@ function ready(error, topo) {
 svg.append("rect")
     .attr("width", 23)
     .attr("height", 23)
-    .attr("x", 30)
-    .attr("y", height - 50)
+    .attr("x", 28)
+    .attr("y", svg.node().getBoundingClientRect().height *.895)
     .attr("fill", BOTTOM_LEFT)
 svg.append("rect")
     .attr("width", 23)
     .attr("height", 23)
-    .attr("x", 55)
-    .attr("y", height - 50)
+    .attr("x", 53)
+    .attr("y", svg.node().getBoundingClientRect().height *.895)
     .attr("fill", BOTTOM_RIGHT);
 svg.append("rect")
     .attr("width", 23)
     .attr("height", 23)
-    .attr("x", 30)
-    .attr("y", height - 75)
+    .attr("x", 28)
+    .attr("y", svg.node().getBoundingClientRect().height *.837)
     .attr("fill", TOP_LEFT);
 svg.append("rect")
     .attr("width", 23)
     .attr("height", 23)
-    .attr("x", 55)
-    .attr("y", height - 75)
+    .attr("x", 53)
+    .attr("y", svg.node().getBoundingClientRect().height *.837)
     .attr("fill", TOP_RIGHT);
 svg.append("text")
 	.style("fill", "black")
 	.style("font-family", "optima")
     .style("font-size", "11px")
-    .attr("dy", ".35em")
-    .attr("text-anchor", "middle")
-    .attr("transform", "translate(16,378) rotate(270)")
-    .text("GHG Emissions -->");
+    .attr("y", 18)
+    .attr("x", 0 - svg.node().getBoundingClientRect().height *.945)
+    .attr("text-anchor", "left")
+    .attr("transform", "rotate(270)")
+    .text("Emissions ->");
 svg.append("text")
 	.style("fill", "black")
 	.style("font-family", "optima")
     .style("font-size", "11px")
-    .attr("dy", ".35em")
-    .attr("text-anchor", "middle")
-    .attr("transform", "translate(65,435) rotate(0)")
-    .text("Risk Index -->");
+    .attr("x", 28)
+    .attr("y", svg.node().getBoundingClientRect().height *.98)
+    .attr("text-anchor", "left")
+    .text("Risk Index ->");
 svg.append("rect")
     .attr("width", 23)
     .attr("height", 23)
-    .attr("x", 130)
-    .attr("y", height - 50)
+    .attr("x", 40)
+    .attr("y", svg.node().getBoundingClientRect().height *.70)
     .attr("fill", NO_DATA)
-    .style("stroke", "black")
+    .style("stroke", NO_DATA)
     .style("stroke-width", 1);
 svg.append("text")
   .style("fill", "black")
   .style("font-family", "optima")
     .style("font-size", "11px")
-    .attr("dy", ".35em")
-    .attr("text-anchor", "left")
-    .attr("transform", "translate(130,435) rotate(0)")
+    .attr("x", 51.5)
+    .attr("y", svg.node().getBoundingClientRect().height *.79)
+    .attr("text-anchor", "middle")
     .text("No Data");
 
 var timeline_array = [
-  {cx: 0, cy: 15, r: 5},
-  {cx: 1, cy: 15, r: 5},
-  {cx: 2, cy: 15, r: 5},
-  {cx: 3, cy: 15, r: 5},
-  {cx: 4, cy: 15, r: 5},
-  {cx: 5, cy: 15, r: 5},
-  {cx: 6, cy: 15, r: 5},
-  {cx: 7, cy: 15, r: 5},
-  {cx: 8, cy: 15, r: 5},
-  {cx: 9, cy: 15, r: 5},
-  {cx: 10, cy: 15, r: 5},
-  {cx: 11, cy: 15, r: 5},
-  {cx: 12, cy: 15, r: 5},
-  {cx: 13, cy: 15, r: 5},
-  {cx: 14, cy: 15, r: 5},
-  {cx: 15, cy: 15, r: 5},
-  {cx: 16, cy: 15, r: 5},
-  {cx: 17, cy: 15, r: 5},
-  {cx: 18, cy: 15, r: 5},
-  {cx: 19, cy: 15, r: 5},
-  {cx: 20, cy: 15, r: 5},
-  {cx: 21, cy: 15, r: 5},
+  {cx: 0, cy: 15, r: 8},
+  {cx: 1, cy: 15, r: 8},
+  {cx: 2, cy: 15, r: 8},
+  {cx: 3, cy: 15, r: 8},
+  {cx: 4, cy: 15, r: 8},
+  {cx: 5, cy: 15, r: 8},
+  {cx: 6, cy: 15, r: 8},
+  {cx: 7, cy: 15, r: 8},
+  {cx: 8, cy: 15, r: 8},
+  {cx: 9, cy: 15, r: 8},
+  {cx: 10, cy: 15, r: 8},
+  {cx: 11, cy: 15, r: 8},
+  {cx: 12, cy: 15, r: 8},
+  {cx: 13, cy: 15, r: 8},
+  {cx: 14, cy: 15, r: 8},
+  {cx: 15, cy: 15, r: 8},
+  {cx: 16, cy: 15, r: 8},
+  {cx: 17, cy: 15, r: 8},
+  {cx: 18, cy: 15, r: 8},
+  {cx: 19, cy: 15, r: 8},
+  {cx: 20, cy: 15, r: 8},
+  {cx: 21, cy: 15, r: 8},
 
 ];
 // Draw timeline for time series data. TO DO:
@@ -260,30 +277,26 @@ var timeline_array = [
 // Make circles clickable
 // Highlight circle on mouseover
 var timeline_svg = d3.select("#timeline"),
-  width = +svg.attr("width"),
-  height = +svg.attr("height");
+  width = +timeline_svg.node().getBoundingClientRect().width,
+  height = +timeline_svg.node().getBoundingClientRect().height;
 var timeline = d3.select("#timeline")
 	.append("line")
-	.attr("x1", 0)
+	.attr("x1", 20)
 	.attr("y1", 15)
-	.attr("x2", 1035)
+	.attr("x2", timeline_svg.node().getBoundingClientRect().width - 90)
 	.attr("y2", 15)
 	.attr("stroke-width", 1.5)
 	.attr("stroke", "black");
 
 var cur_year = 2016;
-/*var circle_line = d3.select("#circles")
-                    .append("svg")
-                    .attr("width", 1000)
-                    .attr("height", 100);*/
 var year_line = [];
-var gap = 1000/21;
+var gap = (timeline_svg.node().getBoundingClientRect().width - 110)/21;
 var circles = timeline_svg.selectAll('circle')
                 .data(timeline_array)
                 .enter()
                 .append('circle')
                   .attr('cx', function(d){
-                    return (d.cx * gap + 15);
+                    return (d.cx * gap + 12);
                   })
                   .attr('cy', function(d){
                     return (d.cy);
@@ -291,6 +304,7 @@ var circles = timeline_svg.selectAll('circle')
                   .attr('r', function(d){
                     return (d.r);
                   })
+                  .attr("stroke-width", 1)
                   .on('mouseover', handleMouseOver)
                   .on('mouseout', handleMouseOut)
                   .on('click', handleMouseClick);
@@ -300,58 +314,117 @@ var text = timeline_svg.selectAll("text")
                     .enter()
                     .append("text");
 var textLabels = text
-            .attr('x', function(d) {return d.cx * gap})
+            .attr('x', function(d) {return d.cx * gap -2})
             .attr('y',40)
             .text( function (d, i) { return String(i + 1995); })
             .attr("font-family", "monospace")
             .attr("font-size", "12px")
-            .attr("fill", "black");
+            .attr("fill", "#215722");
 
-function changeFill(selection) { selection.attr("fill", "orange"); }
-function changeFillback(selection) { selection.attr("fill", "white"); }
+function highlightYear(selection) { selection.attr("fill", "gray"); 
+                                    selection.attr("stroke", "gray"); }
+function unhighlightYear(selection) { selection.attr("fill", "white"); 
+                                      selection.attr("stroke", "black"); }
 
 function handleMouseOver(d, i){
-  // Specify where to put label of text
-      // Use D3 to select element, change color and size
-            d3.select(this)
-            .call(changeFill);
+  // Use D3 to select element, change color
+  d3.select(this).call(highlightYear);
 }
+
 function handleMouseClick(d, i){
+  // Reset previously clicked circle
+  timeline_svg.selectAll('circle').on("mouseout", handleMouseOut);
+  timeline_svg.selectAll('circle').on("mouseover", handleMouseOver);
+  timeline_svg.selectAll('circle').call(unhighlightYear);
+
+  // Use D3 to select element, change color of this circle
+  d3.select(this).attr("fill", "black");
+  d3.select(this).on("mouseout", null);
+  d3.select(this).on("mouseover", null);
+
   // Specify where to put label of text
-  // Use D3 to select element, change color and size
   var year = d.cx + 1995;
-  cur_year = year
-  loadData(year)
+  cur_year = year;
+  loadData(year);
 }
 
 function handleMouseOut(d, i) {
   // Use D3 to select element, change color back to normal
-  d3.select(this)
-  .call(changeFillback)
+  d3.select(this).call(unhighlightYear);
 }
 
 var button_svg = d3.select('#toggles'),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
+    width = +button_svg.node().getBoundingClientRect().width,
+    height = +button_svg.node().getBoundingClientRect().height;
 
-var per_capita_box = "<input type='checkbox' id='per_capita' name='per_capita' value='per_capita' onclick='reload_map();'> <label for='per_capita'> Display Emissions Data Per Capita</label><br>"
-var cbox1 = "<input type='checkbox' id='emissions' name='emissions' value='emissions'> <label for='emissions'> Emissions</label><br>"
-var cbox2 = "<input type='checkbox' id='gain' name='gain' value='Gain'> <label for='gain'> Gain</label><br>"
+var per_capita_box = "<input type='checkbox' id='per_capita' name='per_capita' value='per_capita' onclick='reload_map();'> <label for='per_capita'>Per capita</label><br>"
+/*var cbox1 = "<input type='checkbox' id='emissions' name='emissions' value='emissions'> <label for='emissions'> Emissions</label><br>"*/
+/*var cbox2 = "<input type='checkbox' id='gain' name='gain' value='Gain'> <label for='gain'> Gain</label><br>"*/
 
-var button1 = "<input type='button' onclick='dispEmissions()' id='emissions' name='emissions' value='Emissions'><br>"
-var button2 = "<input type='button' onclick='dispGain()' id='gain' name='gain' value='Gain'><br>"
-var button3 = "<input type='button' onclick='dispCombo()' id='combo' name='combo' value='Combination Matrix'> <br>"
+var emissions = "<input type='button' onclick='dispEmissions()' id='emissions' name='emissions' value='Emissions'><br>"
+var risk = "<input type='button' onclick='dispGain()' id='gain' name='gain' value='Risk'><br>"
+var combination = "<input type='button' onclick='dispCombo()' id='combo' name='combo' value='Combination Matrix'> <br>"
 
 button_svg.append("text")
-    .attr("x", 156)
-    .attr("y", 20)
-    .text("Toggle")
+    .attr("text-anchor", "middle")
+    .attr("x", button_svg.node().getBoundingClientRect().width * .50)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .1)
+    .style("font-family", "optima")
+    .text("Map Displays:");
 
+button_svg.append("foreignObject")
+    .attr("width", 70)
+    .attr("height", 30)
+    .attr("x", button_svg.node().getBoundingClientRect().width * 0)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .25)
+    .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html(emissions);
+
+// Emissions help button
+// MARGO STILL NEEDS TO FINISH THIS SUNDAY
+button_svg.append("circle")
+    .attr("cx", button_svg.node().getBoundingClientRect().width * .45)
+    .attr("cy", button_svg.node().getBoundingClientRect().height * .305)
+    .attr("r", 8)
+    .attr("stroke-width","0px")
+    .attr("fill", "lightgray");
+button_svg.append("text")
+    .attr("x", button_svg.node().getBoundingClientRect().width * .435)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .33)
+    //.attr("dx", function(d){return -20})
+    .style("font-size", "11px")
+    .attr("fill", "white")
+    .text("?");
+
+// Create Gain help button
+// MARGO STILL NEEDS TO FINISH THIS SUNDAY
+
+button_svg.append("foreignObject")
+    .attr("width", 60)
+    .attr("height", 30)
+    .attr("x", button_svg.node().getBoundingClientRect().width * 0)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .45)
+    .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html(risk);
+
+// Create Combination Matrix help button
+// MARGO STILL NEEDS TO FINISH THIS SUNDAY
+
+button_svg.append("foreignObject")
+    .attr("width", 120)
+    .attr("height", 30)
+    .attr("x", button_svg.node().getBoundingClientRect().width * 0)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .65)
+    .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html(combination);
 
 button_svg.append("foreignObject")
     .attr("width", 300)
     .attr("height", 100)
-    .attr("y", 50)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .9)
   .append("xhtml:div")
     .style("font", "14px 'Helvetica Neue'")
     .html(per_capita_box);
@@ -363,33 +436,6 @@ button_svg.append("foreignObject")
   .append("xhtml:div")
     .style("font", "14px 'Helvetica Neue'")
     .html(cbox1 + cbox2);*/
-
-button_svg.append("foreignObject")
-    .attr("width", 400)
-    .attr("height", 100)
-    .attr("x", 147)
-    .attr("y", 90)
-  .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html(button1);
-
-button_svg.append("foreignObject")
-    .attr("width", 400)
-    .attr("height", 100)
-    .attr("x", 158)
-    .attr("y", 120)
-  .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html(button2);
-
-button_svg.append("foreignObject")
-    .attr("width", 400)
-    .attr("height", 100)
-    .attr("x", 120)
-    .attr("y", 150)
-  .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html(button3);
 
 // Zoom map upon mouse zoom
 function zoomed() {
