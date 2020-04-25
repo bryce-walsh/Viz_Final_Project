@@ -189,24 +189,28 @@ function ready(error, topo) {
 
 // Draw four rectangles and labels for matrix key
 svg.append("rect")
+    .attr("id", "Min_Each")
     .attr("width", 23)
     .attr("height", 23)
     .attr("x", 28)
     .attr("y", svg.node().getBoundingClientRect().height *.895)
     .attr("fill", BOTTOM_LEFT)
 svg.append("rect")
+    .attr("id", "Max_Risk")
     .attr("width", 23)
     .attr("height", 23)
     .attr("x", 53)
     .attr("y", svg.node().getBoundingClientRect().height *.895)
     .attr("fill", BOTTOM_RIGHT);
 svg.append("rect")
+    .attr("id", "Max_Emissions")
     .attr("width", 23)
     .attr("height", 23)
     .attr("x", 28)
     .attr("y", svg.node().getBoundingClientRect().height *.837)
     .attr("fill", TOP_LEFT);
 svg.append("rect")
+    .attr("id", "Max_Combo")
     .attr("width", 23)
     .attr("height", 23)
     .attr("x", 53)
@@ -358,8 +362,7 @@ var button_svg = d3.select('#toggles'),
     height = +button_svg.node().getBoundingClientRect().height;
 
 var per_capita_box = "<input type='checkbox' id='per_capita' name='per_capita' value='per_capita' onclick='reload_map();'> <label for='per_capita'>Per capita</label><br>"
-/*var cbox1 = "<input type='checkbox' id='emissions' name='emissions' value='emissions'> <label for='emissions'> Emissions</label><br>"*/
-/*var cbox2 = "<input type='checkbox' id='gain' name='gain' value='Gain'> <label for='gain'> Gain</label><br>"*/
+
 
 var emissions = "<input type='button' onclick='dispEmissions()' id='emissions' name='emissions' value='Emissions'><br>"
 var risk = "<input type='button' onclick='dispGain()' id='gain' name='gain' value='Risk'><br>"
@@ -429,13 +432,6 @@ button_svg.append("foreignObject")
     .style("font", "14px 'Helvetica Neue'")
     .html(per_capita_box);
 
-/*button_svg.append("foreignObject")
-    .attr("width", 200)
-    .attr("height", 100)
-    .attr("y", 50)
-  .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html(cbox1 + cbox2);*/
 
 // Zoom map upon mouse zoom
 function zoomed() {
@@ -511,15 +507,33 @@ function fillEmissionsColor() {
 
 function dispGain(){
     display = DisplayType.GAIN;
+    var max_risk = d3.select('#Max_Risk')
+                  .attr('opacity', 100)
+    var max_combo = d3.select('#Max_Combo')
+                  .attr('opacity', 0)
+    var max_emissions = d3.select('#Max_Emissions')
+                          .attr('opacity', 0)
     reload_map();
 }
 function dispEmissions(){
     display = DisplayType.EMISSIONS;
+    var max_risk = d3.select('#Max_Risk')
+                  .attr('opacity', 0)
+    var max_combo = d3.select('#Max_Combo')
+                  .attr('opacity', 0)
+    var max_emissions = d3.select('#Max_Emissions')
+                          .attr('opacity', 100)
     reload_map();
 }
 
 function dispCombo(){
     display = DisplayType.COMBO;
+    var max_risk = d3.select('#Max_Risk')
+                  .attr('opacity', 100)
+    var max_combo = d3.select('#Max_Combo')
+                  .attr('opacity', 100)
+    var max_emissions = d3.select('#Max_Emissions')
+                          .attr('opacity', 100)
     reload_map();
 }
 
