@@ -45,8 +45,8 @@
 <h1></h1></br>
 <svg id="map"></svg>
 <svg id="toggles"></svg>
+<svg id="vis"></svg>
 <svg id="timeline"></svg>
-<div id="vis"></div>
 <script>
 
 window.onresize = function(){ ready(); }
@@ -159,7 +159,6 @@ function set_up_color_scales() {
               .domain([0, 35])
               .range([BOTTOM_LEFT, TOP_LEFT]);
 }
-
 function ready(error, topo) {
   var projection = d3.geoMercator()
                     .scale(95)
@@ -180,13 +179,45 @@ function ready(error, topo) {
       .attr("d", d3.geoPath()
         .projection(projection)
       )
+      .on('click', displayVals)
       .style("stroke", "gray")
       .style("stroke-width", .25)
       // set the color of each country
       set_up_color_scales();
       reload_map();
 }
-
+// Function to get Country Values
+function displayVals(d, i){
+  if (display == 1){
+          ghgVal = ghgData.get(d.id)
+          if (typeof ghgVal == 'undefined') {
+            return NO_DATA;
+          } else {
+            console.log(ghgVal);
+          }
+        }
+        else if (display == 2){
+          if (typeof gainData.get(d.id) == 'undefined') {
+            return NO_DATA;
+          } else {
+            console.log(gainData.get(d.id));
+          }
+        }
+        else {
+          gainVal = gainData.get(d.id)
+          if (typeof gainVal == 'undefined') {
+            return NO_DATA;
+          } else {
+            console.log(gainVal);
+          }
+          ghgVal = ghgData.get(d.id)
+          if (typeof ghgVal == 'undefined') {
+            return NO_DATA;
+          } else {
+            console.log(ghgVal);
+          }
+        }
+}
 // Draw four rectangles and labels for matrix key
 svg.append("rect")
     .attr("id", "Min_Each")
@@ -433,7 +464,18 @@ button_svg.append("foreignObject")
     .html(per_capita_box);
 
 
-// Zoom map upon mouse zoom
+//Experimenting with info window
+/*var info_window_svg = d3.select("#vis")
+    width = +info_window_svg.node().getBoundingClientRect().width,
+    height = +info_window_svg.node().getBoundingClientRect().height;
+
+
+info_window_svg.append("rect")
+  .attr("class", "background")
+  .attr("fill", "gray")
+  .attr("width", 200)
+  .attr("height", 400)*/
+  // Zoom map upon mouse zoom
 function zoomed() {
   g.style("stroke-width", 1.5 / d3.event.transform.k + "px");
   g.attr("transform", d3.event.transform);
@@ -507,32 +549,32 @@ function fillEmissionsColor() {
 
 function dispGain(){
     display = DisplayType.GAIN;
-    var max_risk = d3.select('#Max_Risk')
+    var maxRisk = d3.select('#Max_Risk')
                   .attr('opacity', 100)
-    var max_combo = d3.select('#Max_Combo')
+    var maxCombo = d3.select('#Max_Combo')
                   .attr('opacity', 0)
-    var max_emissions = d3.select('#Max_Emissions')
+    var maxEmissions = d3.select('#Max_Emissions')
                           .attr('opacity', 0)
     reload_map();
 }
 function dispEmissions(){
     display = DisplayType.EMISSIONS;
-    var max_risk = d3.select('#Max_Risk')
+    var maxRisk = d3.select('#Max_Risk')
                   .attr('opacity', 0)
-    var max_combo = d3.select('#Max_Combo')
+    var maxCombo = d3.select('#Max_Combo')
                   .attr('opacity', 0)
-    var max_emissions = d3.select('#Max_Emissions')
+    var maxEmissions = d3.select('#Max_Emissions')
                           .attr('opacity', 100)
     reload_map();
 }
 
 function dispCombo(){
     display = DisplayType.COMBO;
-    var max_risk = d3.select('#Max_Risk')
+    var maxRisk = d3.select('#Max_Risk')
                   .attr('opacity', 100)
-    var max_combo = d3.select('#Max_Combo')
+    var maxCombo = d3.select('#Max_Combo')
                   .attr('opacity', 100)
-    var max_emissions = d3.select('#Max_Emissions')
+    var maxEmissions = d3.select('#Max_Emissions')
                           .attr('opacity', 100)
     reload_map();
 }
