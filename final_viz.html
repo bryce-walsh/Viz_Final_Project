@@ -140,7 +140,7 @@ var display = DisplayType.COMBO;
 function loadData(year) {
   d3.queue()
   .defer(d3.json, "js/world.geojson")
-  .defer(d3.csv, "ND_GAIN_Data/gain/gain.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "ND_GAIN_Data/gain/gain_no_nans.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_per_cap_no_nans.csv", function(d) {perCapGhgData.set(d.ISO3, +d[year]); })
   .await(ready);
