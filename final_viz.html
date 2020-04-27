@@ -2,42 +2,166 @@
 <meta charset="utf-8">
 <style>
 
+body {
+  margin-bottom: none;
+  margin-top: 20px
+}
+
+h1 {
+  margin: 5px;
+}
+
+h3 {
+  font-weight: normal;
+  margin: 0;
+}
+
+div.tooltip-donut {
+     position: absolute;
+     text-align: center;
+     padding-left: 15px;
+     padding-right: 15px;
+     background: white;
+     color: black;
+     border: 1px solid black;
+     border-radius: 8px;
+     pointer-events: none;
+     font-size: 12px;
+}
+
 .background {
   fill: none;
   stroke: #e4e5eb;
   pointer-events: all;
 }
 
+.toggles_background {
+  fill: none;
+  pointer-events: all;
+}
+
+.button rect {
+  fill: darkgrey;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button:hover rect{
+  fill: lightgray;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button text {
+  fill: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-family: optima;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.button:hover text{
+  fill: white;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button_checked rect {
+  fill: lightgrey;
+  border: 1px;
+  stroke: lightgrey;
+  color: white;
+  padding: 4px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button_checked text {
+  fill: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-family: optima;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.button_unchecked rect {
+  fill: white;
+  border: 1px;
+  stroke: lightgrey;
+  color: white;
+  padding: 4px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button_unchecked text {
+  fill: darkgrey;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-family: optima;
+  font-size: 10px;
+  cursor: pointer;
+}
+
 #map{
     position: absolute;
-    top: 13vh;
+    top: 18vh;
     left: 25vw;
     width: 70vw;
-    height: 70vh;
+    height: 65vh;
 }
 
 #toggles{
     position: absolute;
-    top: 13vh;
+    top: 17vh;
     left: 5vw;
     fill: black;
     width: 15vw;
-    height: 25vh;
+    height: 30vh;
 }
 
 #timeline{
     position: absolute;
-    top: 87vh;
+    top: 88vh;
     left: 4.5vw;
     fill: white;
     stroke: black;
     width: 100vw;
-    height:20vh;
+    height:10vh;
 }
 
 #infowindow{
     position: absolute;
-    top: 50vh;
+    top: 53vh;
     left: 5vw;
     width: 20vw;
     height: 25vh;
@@ -51,7 +175,7 @@
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
 <!-- Create an element where the map will take place -->
-<h1></h1></br>
+<h1></h1><h3></h3></br>
 <svg id="map"></svg>
 <svg id="toggles"></svg>
 <svg id="infowindow"></svg>
@@ -62,7 +186,13 @@ window.onresize = function(){ ready(); }
 
 // Title, centered
 var title = d3.select("h1")
-    .text("Bloop")
+    .text("Environmental Impact by Country")
+    .style("text-align", "center")
+    .style("font-weight", "bold")
+    .style("font-family", "optima");
+
+var subtitle = d3.select("h3")
+    .text("And the mismatch between emissions and climate change afflictions")
     .style("text-align", "center")
     .style("font-family", "optima");
 
@@ -76,13 +206,6 @@ svg.append("rect")
       .attr("class", "background")
       .attr("width", svg.node().getBoundingClientRect().width)
       .attr("height", svg.node().getBoundingClientRect().height);
-
-// Map and projection
-var path = d3.geoPath();
-var projection = d3.geoMercator()
-  .scale(95)
-  .center([0,40])
-  .translate([svg.node().getBoundingClientRect().width / 2, svg.node().getBoundingClientRect().height / 2]);
 
 // Enable map zoom
 var zoom = d3.zoom()
@@ -115,10 +238,10 @@ const TOP_RIGHT = "#5ca166"; //Green
 const NO_DATA = "lightgrey";*/
 
 //Potential alternative, maintains property from above but makes it so that high risk high emissions isn't green
-const BOTTOM_LEFT = "#80c7ed"; //Blue
-const TOP_LEFT = "#992e2e"; //Red
-const BOTTOM_RIGHT = "#ff7000" //Orange
-const TOP_RIGHT = "#ffeb13"; //More Vibrant Yellow
+const BOTTOM_LEFT = "#fff1a3"; // Light Pink //Blue
+const TOP_LEFT = "#C7003A"; //Red
+const BOTTOM_RIGHT = "#d6780d"; //Orange
+const TOP_RIGHT = "#900C3E"; // Dark Purple //More Vibrant Yellow
 const NO_DATA = "lightgrey";
 
 /*Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=PRGn&n=11
@@ -170,8 +293,8 @@ function set_up_color_scales() {
 }
 function ready(error, topo) {
   var projection = d3.geoMercator()
-                    .scale(95)
-                    .center([0,40])
+                    .scale(110)
+                    .center([0,43])
                     .translate([svg.node().getBoundingClientRect().width / 2, 
                                 svg.node().getBoundingClientRect().height / 2]);
   // Background
@@ -189,8 +312,9 @@ function ready(error, topo) {
         .projection(projection)
       )
       .on('click', displayVals)
-      .style("stroke", "gray")
+      .style("stroke", "white")
       .style("stroke-width", .25)
+      .style("cursor", "pointer")
       // set the color of each country
       set_up_color_scales();
       reload_map();
@@ -361,6 +485,7 @@ var circles = timeline_svg.selectAll('circle')
                   .attr('r', function(d){
                     return (d.r);
                   })
+                  .attr("class", function(d,i) {return "circle" + String(1995 + i);})
                   .attr("stroke-width", 1)
                   .on('mouseover', handleMouseOver)
                   .on('mouseout', handleMouseOut)
@@ -377,6 +502,9 @@ var textLabels = text
             .attr("font-family", "monospace")
             .attr("font-size", "12px")
             .attr("fill", "#215722");
+timeline_svg.select(".circle2016").attr("fill", "black")
+                                  .on("mouseout", null)
+                                  .on("mouseover", null);
 
 function highlightYear(selection) { selection.attr("fill", "gray"); 
                                     selection.attr("stroke", "gray"); }
@@ -413,77 +541,176 @@ function handleMouseOut(d, i) {
 var button_svg = d3.select('#toggles'),
     width = +button_svg.node().getBoundingClientRect().width,
     height = +button_svg.node().getBoundingClientRect().height;
+var per_capita = false;
 
-var per_capita_box = "<input type='checkbox' id='per_capita' name='per_capita' value='per_capita' onclick='reload_map();'> <label for='per_capita'>Per capita</label><br>"
+var help = d3.select("body").append("div")
+                  .attr("class", "tooltip-donut")
+                  .style("opacity", 0);
+var description = "<p><b>Combination Matrix:</b> Bloop.</p> \
+                             <p><b>Emissions:</b> Bloop.</p> \
+                             <p><b>Risk Index:</b> Bloop.</p>";
 
+var toggle_title = button_svg.append("g");
 
-var emissions = "<input type='button' onclick='dispEmissions()' id='emissions' name='emissions' value='Emissions'><br>"
-var risk = "<input type='button' onclick='dispGain()' id='gain' name='gain' value='Risk'><br>"
-var combination = "<input type='button' onclick='dispCombo()' id='combo' name='combo' value='Combination Matrix'> <br>"
-
-button_svg.append("text")
+toggle_title.append("text")
     .attr("text-anchor", "middle")
-    .attr("x", button_svg.node().getBoundingClientRect().width * .50)
+    .attr("x", button_svg.node().getBoundingClientRect().width * .45)
     .attr("y", button_svg.node().getBoundingClientRect().height * .1)
     .style("font-family", "optima")
     .text("Map Displays:");
 
-button_svg.append("foreignObject")
-    .attr("width", 70)
-    .attr("height", 30)
-    .attr("x", button_svg.node().getBoundingClientRect().width * 0)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .25)
-    .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html(emissions);
-
-// Emissions help button
-// MARGO STILL NEEDS TO FINISH THIS SUNDAY
-button_svg.append("circle")
-    .attr("cx", button_svg.node().getBoundingClientRect().width * .45)
-    .attr("cy", button_svg.node().getBoundingClientRect().height * .305)
+toggle_title.append("circle")
+    .attr("cx", button_svg.node().getBoundingClientRect().width * .83)
+    .attr("cy", button_svg.node().getBoundingClientRect().height * .08)
     .attr("r", 8)
-    .attr("stroke-width","0px")
-    .attr("fill", "lightgray");
-button_svg.append("text")
-    .attr("x", button_svg.node().getBoundingClientRect().width * .435)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .33)
-    //.attr("dx", function(d){return -20})
-    .style("font-size", "11px")
+    .attr("stroke-width","1px")
+    .attr("stroke", "black")
     .attr("fill", "white")
-    .text("?");
+    .style("cursor", "pointer")
+    .on('click', function (d, i) {
+          help.transition()
+               .duration(50)
+               .style("opacity", 1);
+          help.html(description)
+               .style("left", (d3.event.pageX + 10) + "px")
+               .style("top", (d3.event.pageY - 15) + "px");
+     })
+     .on('mouseout', function (d, i) {
+          help.transition()
+               .duration('50')
+               .style("opacity", 0);
+     });
+toggle_title.append("text")
+    .attr("x", button_svg.node().getBoundingClientRect().width * .815)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .1)
+    .style("font-size", "11px")
+    .attr("fill", "black")
+    .text("?")
+    .style("cursor", "pointer")
+    .on('click', function (d, i) {
+          help.transition()
+               .duration(50)
+               .style("opacity", 1);
+          help.html(description)
+               .style("left", (d3.event.pageX + 10) + "px")
+               .style("top", (d3.event.pageY - 15) + "px");
+     })
+     .on('mouseout', function (d, i) {
+          help.transition()
+               .duration('50')
+               .style("opacity", 0);
+     });
 
-// Create Gain help button
-// MARGO STILL NEEDS TO FINISH THIS SUNDAY
+var combo = button_svg.append("g").attr("class", "button");
 
-button_svg.append("foreignObject")
-    .attr("width", 60)
-    .attr("height", 30)
-    .attr("x", button_svg.node().getBoundingClientRect().width * 0)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .45)
-    .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html(risk);
+combo.append("rect")
+    .attr("width", button_svg.node().getBoundingClientRect().width * .85)
+    .attr("height", button_svg.node().getBoundingClientRect().height * .18)
+    .attr("x", button_svg.node().getBoundingClientRect().width * .1)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .2)
+    .on("click", dispCombo);
 
-// Create Combination Matrix help button
-// MARGO STILL NEEDS TO FINISH THIS SUNDAY
+combo.append("text")
+    .text("Combination Matrix")
+    .attr("x", button_svg.node().getBoundingClientRect().width * .24)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .31)
+    .on("click", dispCombo);
 
-button_svg.append("foreignObject")
-    .attr("width", 120)
-    .attr("height", 30)
-    .attr("x", button_svg.node().getBoundingClientRect().width * 0)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .65)
-    .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html(combination);
+var emissions = button_svg.append("g").attr("class", "button");
 
-button_svg.append("foreignObject")
-    .attr("width", 300)
-    .attr("height", 100)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .9)
-  .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html(per_capita_box);
+emissions.append("rect")
+    .attr("width", button_svg.node().getBoundingClientRect().width * .85)
+    .attr("height", button_svg.node().getBoundingClientRect().height * .18)
+    .attr("x", button_svg.node().getBoundingClientRect().width * .1)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .4)
+    .on("click", dispEmissions);
+
+emissions.append("text")
+    .text("Emissions")
+    .attr("x", button_svg.node().getBoundingClientRect().width * .38)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .51)
+    .on("click", dispEmissions);
+
+var emissions_pop = button_svg.append("g").attr("id", "pop").attr("class", "button_checked");
+
+emissions_pop.append("rect")
+    .attr("class", "button_checked")
+    .attr("id", "pop")
+    .attr("width", button_svg.node().getBoundingClientRect().width * .422)
+    .attr("height", button_svg.node().getBoundingClientRect().height * .18)
+    .attr("x", button_svg.node().getBoundingClientRect().width * .1)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .6)
+    .on("click", function(d, i) {
+      per_capita = false;
+      d3.select("#pop").classed("button_unchecked", false);
+      d3.select("#pop").classed("button_checked", true);
+      d3.select("#cap").classed("button_checked", false);
+      d3.select("#cap").classed("button_unchecked", true);
+      reload_map();
+    });
+
+emissions_pop.append("text")
+    .text("population")
+    .attr("class", "button_checked")
+    .attr("id", "pop")
+    .attr("x", button_svg.node().getBoundingClientRect().width * .19)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .71)
+    .on("click", function(d, i) {
+      per_capita = false;
+      d3.select("#pop").classed("button_unchecked", false);
+      d3.select("#pop").classed("button_checked", true);
+      d3.select("#cap").classed("button_checked", false);
+      d3.select("#cap").classed("button_unchecked", true);
+      reload_map();
+    });
+
+var emissions_cap = button_svg.append("g").attr("id", "cap").attr("class", "button_unchecked");
+
+emissions_cap.append("rect")
+    .attr("class", "button_unchecked")
+    .attr("id", "cap")
+    .attr("width", button_svg.node().getBoundingClientRect().width * .422)
+    .attr("height", button_svg.node().getBoundingClientRect().height * .18)
+    .attr("x", button_svg.node().getBoundingClientRect().width * .53)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .6)
+    .on("click", function(d, i) {
+      per_capita = true;
+      d3.select("#cap").classed("button_unchecked", false);
+      d3.select("#cap").classed("button_checked", true);
+      d3.select("#pop").classed("button_checked", false);
+      d3.select("#pop").classed("button_unchecked", true);
+      reload_map();
+    });
+
+emissions_cap.append("text")
+    .text("per capita")
+    .attr("class", "button_unchecked")
+    .attr("id", "cap")
+    .attr("x", button_svg.node().getBoundingClientRect().width * .64)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .71)
+    .on("click", function(d, i) {
+      per_capita = true;
+      d3.select("#cap").classed("button_unchecked", false);
+      d3.select("#cap").classed("button_checked", true);
+      d3.select("#pop").classed("button_checked", false);
+      d3.select("#pop").classed("button_unchecked", true);
+      reload_map();
+    });
+
+var risk = button_svg.append("g").attr("class", "button");
+
+risk.append("rect")
+    .attr("width", button_svg.node().getBoundingClientRect().width * .85)
+    .attr("height", button_svg.node().getBoundingClientRect().height * .18)
+    .attr("x", button_svg.node().getBoundingClientRect().width * .1)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .8)
+    .on("click", dispGain);
+
+risk.append("text")
+    .text("Risk Index")
+    .attr("x", button_svg.node().getBoundingClientRect().width * .35)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .91)
+    .on("click", dispGain);
 
 
 //Experimenting with info window
@@ -491,9 +718,8 @@ var info_window_svg = d3.select("#infowindow")
     width = +info_window_svg.node().getBoundingClientRect().width,
     height = +info_window_svg.node().getBoundingClientRect().height;
 
-
 info_window_svg.append("rect")
-  .attr("class", "background")
+  .attr("class", "toggles_background")
   .attr("width", 175)
   .attr("height", 150)
 
@@ -550,7 +776,7 @@ function average(array) {
 }
 
 function fillCountryColor() {
-  displayPerCap = document.getElementById("per_capita").checked;
+  displayPerCap = per_capita;
   var ghgMidpoint = average(ghgData.values());
   var gainMidpoint = average(gainData.values());
   var perCapMidpoint = average(perCapGhgData.values());
@@ -591,7 +817,7 @@ function fillGainColor() {
         })
 }
 function fillEmissionsColor() {
-  displayPerCap = document.getElementById("per_capita").checked 
+  displayPerCap = per_capita;
   g.selectAll("path")
     .attr("fill", function (d) {
           ghgVal = ghgData.get(d.id);
