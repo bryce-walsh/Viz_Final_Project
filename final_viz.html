@@ -2,6 +2,37 @@
 <meta charset="utf-8">
 <style>
 
+/* SLIDER START */
+#chart {
+  position: absolute;
+  top: 88vh;
+  left: 4.5vw;
+  width: 100vw;
+  height: 10vh;
+}
+
+#chart line.track {
+  stroke: black;
+  stroke-width: 7px;
+}
+
+#chart line.track-inset {
+  stroke: steelblue;
+  stroke-width: 8px;
+}
+#chart line.track-overlay {
+  stroke: white;
+  stroke-width: 40px;
+  stroke-opacity: 0;
+  cursor: pointer;
+}
+#chart .handle {
+  fill: white;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+/* SLIDER END */
+
 body {
   margin-bottom: none;
   margin-top: 20px
@@ -87,9 +118,9 @@ div.tooltip-donut {
 }
 
 .button_checked rect {
-  fill: lightgrey;
+  fill: darkgrey;
   border: 1px;
-  stroke: lightgrey;
+  stroke: white;
   color: white;
   padding: 4px 10px;
   text-align: center;
@@ -112,7 +143,7 @@ div.tooltip-donut {
 .button_unchecked rect {
   fill: white;
   border: 1px;
-  stroke: lightgrey;
+  stroke: white;
   color: white;
   padding: 4px 10px;
   text-align: center;
@@ -149,16 +180,6 @@ div.tooltip-donut {
     height: 30vh;
 }
 
-#timeline{
-    position: absolute;
-    top: 88vh;
-    left: 4.5vw;
-    fill: white;
-    stroke: black;
-    width: 100vw;
-    height:10vh;
-}
-
 #infowindow{
     position: absolute;
     top: 53vh;
@@ -179,7 +200,7 @@ div.tooltip-donut {
 <svg id="map"></svg>
 <svg id="toggles"></svg>
 <svg id="infowindow"></svg>
-<svg id="timeline"></svg>
+<svg id="chart"></svg>
 <script>
 
 window.onresize = function(){ ready(); }
@@ -395,8 +416,8 @@ svg.append("rect")
     .attr("fill", TOP_RIGHT);
 svg.append("text")
 	.style("fill", "black")
-	.style("font-family", "optima")
-    .style("font-size", "11px")
+	.style("font-family", "monospace")
+    .style("font-size", "12px")
     .attr("y", 18)
     .attr("x", 0 - svg.node().getBoundingClientRect().height *.945)
     .attr("text-anchor", "left")
@@ -404,8 +425,8 @@ svg.append("text")
     .text("Emissions ->");
 svg.append("text")
 	.style("fill", "black")
-	.style("font-family", "optima")
-    .style("font-size", "11px")
+	.style("font-family", "monospace")
+    .style("font-size", "12px")
     .attr("x", 28)
     .attr("y", svg.node().getBoundingClientRect().height *.98)
     .attr("text-anchor", "left")
@@ -421,122 +442,116 @@ svg.append("rect")
 svg.append("text")
   .style("fill", "black")
   .style("font-family", "optima")
-    .style("font-size", "11px")
+    .style("font-size", "12px")
     .attr("x", 51.5)
     .attr("y", svg.node().getBoundingClientRect().height *.79)
     .attr("text-anchor", "middle")
     .text("No Data");
 
-var timeline_array = [
-  {cx: 0, cy: 15, r: 8},
-  {cx: 1, cy: 15, r: 8},
-  {cx: 2, cy: 15, r: 8},
-  {cx: 3, cy: 15, r: 8},
-  {cx: 4, cy: 15, r: 8},
-  {cx: 5, cy: 15, r: 8},
-  {cx: 6, cy: 15, r: 8},
-  {cx: 7, cy: 15, r: 8},
-  {cx: 8, cy: 15, r: 8},
-  {cx: 9, cy: 15, r: 8},
-  {cx: 10, cy: 15, r: 8},
-  {cx: 11, cy: 15, r: 8},
-  {cx: 12, cy: 15, r: 8},
-  {cx: 13, cy: 15, r: 8},
-  {cx: 14, cy: 15, r: 8},
-  {cx: 15, cy: 15, r: 8},
-  {cx: 16, cy: 15, r: 8},
-  {cx: 17, cy: 15, r: 8},
-  {cx: 18, cy: 15, r: 8},
-  {cx: 19, cy: 15, r: 8},
-  {cx: 20, cy: 15, r: 8},
-  {cx: 21, cy: 15, r: 8},
+/* TIMELINE START */
 
-];
-// Draw timeline for time series data. TO DO:
-// Simple for loop to add 18 circles representing 1995-2012
-// Add labels to circles
-// Make circles clickable
-// Highlight circle on mouseover
-var timeline_svg = d3.select("#timeline"),
-  width = +timeline_svg.node().getBoundingClientRect().width,
-  height = +timeline_svg.node().getBoundingClientRect().height;
-var timeline = d3.select("#timeline")
-	.append("line")
-	.attr("x1", 20)
-	.attr("y1", 15)
-	.attr("x2", timeline_svg.node().getBoundingClientRect().width - 90)
-	.attr("y2", 15)
-	.attr("stroke-width", 1.5)
-	.attr("stroke", "black");
+var range = [1995, 2016],
+    step = 1; // change the step and if null, it'll switch back to a normal slider
+// append svg
+var timeline_svg = d3.select('#chart');
+var width = timeline_svg.node().getBoundingClientRect().width;
+var height = timeline_svg.node().getBoundingClientRect().height;
 
-var cur_year = 2016;
-var year_line = [];
-var gap = (timeline_svg.node().getBoundingClientRect().width - 110)/21;
-var circles = timeline_svg.selectAll('circle')
-                .data(timeline_array)
-                .enter()
-                .append('circle')
-                  .attr('cx', function(d){
-                    return (d.cx * gap + 12);
-                  })
-                  .attr('cy', function(d){
-                    return (d.cy);
-                  })
-                  .attr('r', function(d){
-                    return (d.r);
-                  })
-                  .attr("class", function(d,i) {return "circle" + String(1995 + i);})
-                  .attr("stroke-width", 1)
-                  .on('mouseover', handleMouseOver)
-                  .on('mouseout', handleMouseOut)
-                  .on('click', handleMouseClick);
+var slider = timeline_svg.append('g')
+    .classed('slider', true)
+    .attr('transform', 'translate(50, '+ (height * .2) + ')');
 
-var text = timeline_svg.selectAll("text")
-                    .data(timeline_array)
-                    .enter()
-                    .append("text");
-var textLabels = text
-            .attr('x', function(d) {return d.cx * gap -2})
-            .attr('y',40)
-            .text( function (d, i) { return String(i + 1995); })
-            .attr("font-family", "monospace")
-            .attr("font-size", "12px")
-            .attr("fill", "#215722");
-timeline_svg.select(".circle2016").attr("fill", "black")
-                                  .on("mouseout", null)
-                                  .on("mouseover", null);
+// using clamp here to avoid slider exceeding the range limits
+var xScale = d3.scaleLinear()
+    .domain(range)
+    .range([-5, width - 170])
+    .clamp(true);
 
-function highlightYear(selection) { selection.attr("fill", "gray"); 
-                                    selection.attr("stroke", "gray"); }
-function unhighlightYear(selection) { selection.attr("fill", "white"); 
-                                      selection.attr("stroke", "black"); }
+// array useful for step sliders
+var rangeValues = d3.range(range[0], range[1], step || 1).concat(range[1]);
+var xAxis = d3.axisBottom(xScale).tickValues(rangeValues).tickSize(20).tickFormat(function (d) {
+    return d;
+});
 
-function handleMouseOver(d, i){
-  // Use D3 to select element, change color
-  d3.select(this).call(highlightYear);
+// drag behavior initialization
+var drag = d3.drag()
+    .on('start.interrupt', function () {
+        slider.interrupt();
+    }).on('start drag', function () {
+        dragged(d3.event.x);
+    });
+
+// this is the main bar with a stroke (applied through CSS)
+var track = slider.append('line').attr('class', 'track')
+    .attr('x1', xScale.range()[0])
+    .attr('x2', xScale.range()[1]);
+
+// this is a bar (steelblue) that's inside the main "track" to make it look like a rect with a border
+//var trackInset = d3.select(slider.node().appendChild(track.node().cloneNode())).attr('class', 'track-inset');
+
+var ticks = slider.append('g').attr('class', 'ticks').attr('transform', 'translate(0, -4)')
+    .call(xAxis);
+
+d3.selectAll('g.tick') 
+  .selectAll("line")//grab the tick line
+  .attr('class', 'quadrantBorder') //style with a custom class and CSS
+  .style('stroke', "white")
+  .style('stroke-width', "3px"); //or style directly with attributes or inline styles
+
+d3.selectAll("g.tick").selectAll("text")
+  .each(function(d, i){
+    d3.select(this).style("font-family", "monospace");
+    d3.select(this).style("font-size", "12px");
+    d3.select(this).style("fill", "black");
+  });
+
+// drag handle
+var handle = slider.append('circle').classed('handle', true)
+    .attr('r', 9)
+
+// this is the bar on top of above tracks with stroke = transparent and on which the drag behaviour is actually called
+// try removing above 2 tracks and play around with the CSS for this track overlay, you'll see the difference
+var trackOverlay = d3.select(slider.node().appendChild(track.node().cloneNode())).attr('class', 'track-overlay')
+    .call(drag);
+
+//initial animation - MARGO – I don't know why it speed up in the middle. Will fix later
+  slider.transition().duration(5000)
+    .tween("drag", function () {
+        var i = d3.interpolate(1995, 2016);
+        return function (t) {
+            dragged(xScale(i(t)));
+        };
+});
+
+function dragged(value) {
+    var x = xScale.invert(value), index = null, midPoint, cx, year;
+    if(step) {
+        // if step has a value, compute the midpoint based on range values and reposition the slider based on the mouse position
+        for (var i = 0; i < rangeValues.length - 1; i++) {
+            if (x >= rangeValues[i] && x <= rangeValues[i + 1]) {
+                index = i;
+                break;
+            }
+        }
+        midPoint = (rangeValues[index] + rangeValues[index + 1]) / 2;
+        if (x < midPoint) {
+            cx = xScale(rangeValues[index]);
+            year = rangeValues[index];
+        } else {
+            cx = xScale(rangeValues[index + 1]);
+            year = rangeValues[index + 1];
+        }
+    } else {
+        // if step is null or 0, return the drag value as is
+        cx = xScale(x);
+        year = x.toFixed(3);
+    }
+    // use xVal as drag value
+    loadData(year);
+    handle.attr('cx', cx);
 }
 
-function handleMouseClick(d, i){
-  // Reset previously clicked circle
-  timeline_svg.selectAll('circle').on("mouseout", handleMouseOut);
-  timeline_svg.selectAll('circle').on("mouseover", handleMouseOver);
-  timeline_svg.selectAll('circle').call(unhighlightYear);
-
-  // Use D3 to select element, change color of this circle
-  d3.select(this).attr("fill", "black");
-  d3.select(this).on("mouseout", null);
-  d3.select(this).on("mouseover", null);
-
-  // Specify where to put label of text
-  var year = d.cx + 1995;
-  cur_year = year;
-  loadData(year);
-}
-
-function handleMouseOut(d, i) {
-  // Use D3 to select element, change color back to normal
-  d3.select(this).call(unhighlightYear);
-}
+/* TIMELINE END */
 
 var button_svg = d3.select('#toggles'),
     width = +button_svg.node().getBoundingClientRect().width,
@@ -637,9 +652,9 @@ emissions_pop.append("rect")
     .attr("class", "button_checked")
     .attr("id", "pop")
     .attr("width", button_svg.node().getBoundingClientRect().width * .422)
-    .attr("height", button_svg.node().getBoundingClientRect().height * .18)
-    .attr("x", button_svg.node().getBoundingClientRect().width * .1)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .6)
+    .attr("height", button_svg.node().getBoundingClientRect().height * .1)
+    .attr("x", button_svg.node().getBoundingClientRect().width * .102)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .58)
     .on("click", function(d, i) {
       per_capita = false;
       d3.select("#pop").classed("button_unchecked", false);
@@ -649,30 +664,32 @@ emissions_pop.append("rect")
       reload_map();
     });
 
-emissions_pop.append("text")
-    .text("population")
-    .attr("class", "button_checked")
-    .attr("id", "pop")
-    .attr("x", button_svg.node().getBoundingClientRect().width * .19)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .71)
-    .on("click", function(d, i) {
-      per_capita = false;
-      d3.select("#pop").classed("button_unchecked", false);
-      d3.select("#pop").classed("button_checked", true);
-      d3.select("#cap").classed("button_checked", false);
-      d3.select("#cap").classed("button_unchecked", true);
-      reload_map();
-    });
+var textE = emissions_pop.append("text")
+            .text("National Total")
+            .attr("class", "button_checked")
+            .attr("id", "pop")
+            .attr("y", button_svg.node().getBoundingClientRect().height * .645)
+            .on("click", function(d, i) {
+              per_capita = false;
+              d3.select("#pop").classed("button_unchecked", false);
+              d3.select("#pop").classed("button_checked", true);
+              d3.select("#cap").classed("button_checked", false);
+              d3.select("#cap").classed("button_unchecked", true);
+              reload_map();
+            });
+
+var textwidth = d3.select("#pop text").node().getComputedTextLength();
+textE.attr("x", ((button_svg.node().getBoundingClientRect().width * .422) - textwidth) / 2 + button_svg.node().getBoundingClientRect().width * .102);
 
 var emissions_cap = button_svg.append("g").attr("id", "cap").attr("class", "button_unchecked");
 
 emissions_cap.append("rect")
     .attr("class", "button_unchecked")
     .attr("id", "cap")
-    .attr("width", button_svg.node().getBoundingClientRect().width * .422)
-    .attr("height", button_svg.node().getBoundingClientRect().height * .18)
-    .attr("x", button_svg.node().getBoundingClientRect().width * .53)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .6)
+    .attr("width", button_svg.node().getBoundingClientRect().width * .42)
+    .attr("height", button_svg.node().getBoundingClientRect().height * .1)
+    .attr("x", button_svg.node().getBoundingClientRect().width * .527)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .58)
     .on("click", function(d, i) {
       per_capita = true;
       d3.select("#cap").classed("button_unchecked", false);
@@ -682,12 +699,11 @@ emissions_cap.append("rect")
       reload_map();
     });
 
-emissions_cap.append("text")
-    .text("per capita")
+textE = emissions_cap.append("text")
+    .text("Per Capita")
     .attr("class", "button_unchecked")
     .attr("id", "cap")
-    .attr("x", button_svg.node().getBoundingClientRect().width * .64)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .71)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .645)
     .on("click", function(d, i) {
       per_capita = true;
       d3.select("#cap").classed("button_unchecked", false);
@@ -696,6 +712,9 @@ emissions_cap.append("text")
       d3.select("#pop").classed("button_unchecked", true);
       reload_map();
     });
+
+textwidth = d3.select("#cap text").node().getComputedTextLength();
+textE.attr("x", ((button_svg.node().getBoundingClientRect().width * .42) - textwidth) / 2 + button_svg.node().getBoundingClientRect().width * .527);
 
 var risk = button_svg.append("g").attr("class", "button");
 
@@ -703,13 +722,13 @@ risk.append("rect")
     .attr("width", button_svg.node().getBoundingClientRect().width * .85)
     .attr("height", button_svg.node().getBoundingClientRect().height * .18)
     .attr("x", button_svg.node().getBoundingClientRect().width * .1)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .8)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .70)
     .on("click", dispGain);
 
 risk.append("text")
     .text("Risk Index")
     .attr("x", button_svg.node().getBoundingClientRect().width * .35)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .91)
+    .attr("y", button_svg.node().getBoundingClientRect().height * .81)
     .on("click", dispGain);
 
 
