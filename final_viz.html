@@ -518,7 +518,6 @@ var trackOverlay = d3.select(slider.node().appendChild(track.node().cloneNode())
     .tween("drag", function () {
         var i = d3.interpolate(1995, 2016);
         return function (t) {
-            console.log(xScale.invert(xScale(i(t))));
             dragged(xScale(i(t)));
         };
 });
@@ -664,20 +663,22 @@ emissions_pop.append("rect")
       reload_map();
     });
 
-emissions_pop.append("text")
-    .text("National Total")
-    .attr("class", "button_checked")
-    .attr("id", "pop")
-    .attr("x", button_svg.node().getBoundingClientRect().width * .15)
-    .attr("y", button_svg.node().getBoundingClientRect().height * .645)
-    .on("click", function(d, i) {
-      per_capita = false;
-      d3.select("#pop").classed("button_unchecked", false);
-      d3.select("#pop").classed("button_checked", true);
-      d3.select("#cap").classed("button_checked", false);
-      d3.select("#cap").classed("button_unchecked", true);
-      reload_map();
-    });
+var textE = emissions_pop.append("text")
+            .text("National Total")
+            .attr("class", "button_checked")
+            .attr("id", "pop")
+            .attr("y", button_svg.node().getBoundingClientRect().height * .645)
+            .on("click", function(d, i) {
+              per_capita = false;
+              d3.select("#pop").classed("button_unchecked", false);
+              d3.select("#pop").classed("button_checked", true);
+              d3.select("#cap").classed("button_checked", false);
+              d3.select("#cap").classed("button_unchecked", true);
+              reload_map();
+            });
+
+var textwidth = d3.select("#pop text").node().getComputedTextLength();
+textE.attr("x", ((button_svg.node().getBoundingClientRect().width * .422) - textwidth) / 2 + button_svg.node().getBoundingClientRect().width * .102);
 
 var emissions_cap = button_svg.append("g").attr("id", "cap").attr("class", "button_unchecked");
 
@@ -697,11 +698,10 @@ emissions_cap.append("rect")
       reload_map();
     });
 
-emissions_cap.append("text")
+textE = emissions_cap.append("text")
     .text("Per Capita")
     .attr("class", "button_unchecked")
     .attr("id", "cap")
-    .attr("x", button_svg.node().getBoundingClientRect().width * .63)
     .attr("y", button_svg.node().getBoundingClientRect().height * .645)
     .on("click", function(d, i) {
       per_capita = true;
@@ -711,6 +711,9 @@ emissions_cap.append("text")
       d3.select("#pop").classed("button_unchecked", true);
       reload_map();
     });
+
+textwidth = d3.select("#cap text").node().getComputedTextLength();
+textE.attr("x", ((button_svg.node().getBoundingClientRect().width * .42) - textwidth) / 2 + button_svg.node().getBoundingClientRect().width * .527);
 
 var risk = button_svg.append("g").attr("class", "button");
 
