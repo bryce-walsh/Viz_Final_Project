@@ -14,7 +14,7 @@ print(emissions_per_cap)
 
 for year in range(1995, 2017):
 	year_col = (emissions.set_index('ISO3')[str(year)] * 1000000)/population.set_index('ISO3')[str(year)]
-	#print(year_col)
+	print(year_col)
 	emissions_per_cap[year] = year_col
 print(emissions_per_cap)
 emissions_per_cap = emissions_per_cap.dropna(how='all')
