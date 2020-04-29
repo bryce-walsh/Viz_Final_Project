@@ -201,6 +201,8 @@ div.tooltip-donut {
 <svg id="toggles"></svg>
 <svg id="infowindow"></svg>
 <svg id="chart"></svg>
+<svg id="barchart"></svg>
+
 <script>
 
 window.onresize = function(){ ready(); }
@@ -239,6 +241,9 @@ svg.call(zoom);
 var gainData = d3.map();
 var ghgData = d3.map();
 var perCapGhgData = d3.map();
+var gainRankData = d3.map();
+var ghgRankData = d3.map();
+var perCapGhgRankData = d3.map();
 var gainColorScale;
 var ghgColorScale;
 var perCapGhgColorScale;
@@ -295,7 +300,10 @@ function loadData(year) {
   .defer(d3.json, "js/world.geojson")
   .defer(d3.csv, "ND_GAIN_Data/gain/gain_no_nans.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "ND_GAIN_Data/gain/gain_rankings.csv", function(d) {  gainRankData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "Emissions_Data/emissions_rankings.csv", function(d) {  ghgRankData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_per_cap_no_nans.csv", function(d) {perCapGhgData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "Emissions_Data/emissions_per_cap_rankings.csv", function(d) {perCapGhgRankData.set(d.ISO3, +d[year]); })
   .await(ready);
 }
 
@@ -345,45 +353,54 @@ function displayVals(d, i){
   //Assign Country Name
   d3.select("#country")
     .text(d.properties.name)
-  if (display == 1){
-          ghgVal = ghgData.get(d.id)
-          if (typeof ghgVal == 'undefined') {
-            d3.select("#emissions_val")
-                .text("No Value")
-          } else {
-              d3.select("#emissions_val")
-                .text(String(ghgVal))
-          }
-        }
-        else if (display == 2){
-          gainVal = gainData.get(d.id)
-          if (typeof gainVal == 'undefined') {
-            d3.select("#risk_val")
-                .text("No Value")
-          } else {
-            gainVal = Math.round((gainVal + Number.EPSILON) * 100) / 100
-              d3.select("#risk_val")
-                .text(String(gainVal))
-          }
-        }else {
-          gainVal = gainData.get(d.id)
-          if (typeof gainVal == 'undefined') {
-            d3.select("#risk_val")
-                .text("No Value")
-          } else {
-              gainVal = Math.round((gainVal + Number.EPSILON) * 100) / 100
-              d3.select("#risk_val")
-                .text(String(gainVal))
-          }
-          ghgVal = ghgData.get(d.id)
-          if (typeof ghgVal == 'undefined') {
-            d3.select("#emissions_val")
-                .text("No Value")
-          } else {
-              d3.select("#emissions_val")
-                .text(String(ghgVal))
-          }
-        }
+  if (per_capita == true){
+      gainVal = gainData.get(d.id)
+      d3.select("#emissions_tag")
+        .text("Emissions (Per Capita), Rank")
+      if (typeof gainVal == 'undefined') {
+        d3.select("#risk_val")
+            .text("No Value")
+      } else {
+          gainVal = Math.round((gainVal + Number.EPSILON) * 100) / 100
+          gainRank = gainRankData.get(d.id)
+          d3.select("#risk_val")
+            .text(String(gainVal) + ", " + String(gainRank))
+      }
+      ghgVal = perCapGhgData.get(d.id)
+      if (typeof ghgVal == 'undefined') {
+        d3.select("#emissions_val")
+            .text("No Value")
+      } else {
+          ghgVal = Math.round((ghgVal + Number.EPSILON) * 100) / 100
+          ghgRank = perCapGhgRankData.get(d.id)
+          d3.select("#emissions_val")
+            .text(String(ghgVal) + ", " + String(ghgRank))
+      }
+  } else{
+      gainVal = gainData.get(d.id)
+      d3.select("#emissions_tag")
+        .text("Emissions (Total), Rank")
+      if (typeof gainVal == 'undefined') {
+        d3.select("#risk_val")
+            .text("No Value")
+      } else {
+          gainVal = Math.round((gainVal + Number.EPSILON) * 100) / 100
+          gainRank = gainRankData.get(d.id)
+          d3.select("#risk_val")
+            .text(String(gainVal) + ", " + String(gainRank))
+      }
+      ghgVal = ghgData.get(d.id)
+      if (typeof ghgVal == 'undefined') {
+        d3.select("#emissions_val")
+            .text("No Value")
+      } else {
+          ghgVal = Math.round((ghgVal + Number.EPSILON) * 100) / 100
+          ghgRank = ghgRankData.get(d.id)
+          d3.select("#emissions_val")
+            .text(String(ghgVal) + ", " + String(ghgRank))
+      }
+  }
+  
 }
 // Draw four rectangles and labels for matrix key
 svg.append("rect")
@@ -397,7 +414,7 @@ svg.append("rect")
     .attr("id", "Max_Risk")
     .attr("width", 23)
     .attr("height", 23)
-    .attr("x", 53)
+    .attr("x", 57)
     .attr("y", svg.node().getBoundingClientRect().height *.895)
     .attr("fill", BOTTOM_RIGHT);
 svg.append("rect")
@@ -411,7 +428,7 @@ svg.append("rect")
     .attr("id", "Max_Combo")
     .attr("width", 23)
     .attr("height", 23)
-    .attr("x", 53)
+    .attr("x", 57)
     .attr("y", svg.node().getBoundingClientRect().height *.837)
     .attr("fill", TOP_RIGHT);
 svg.append("text")
@@ -515,7 +532,7 @@ var trackOverlay = d3.select(slider.node().appendChild(track.node().cloneNode())
     .call(drag);
 
 //initial animation - MARGO – I don't know why it speed up in the middle. Will fix later
-  slider.transition().duration(5000)
+  slider.transition().duration(7500)
     .tween("drag", function () {
         var i = d3.interpolate(1995, 2016);
         return function (t) {
@@ -623,6 +640,7 @@ combo.append("rect")
     .attr("height", button_svg.node().getBoundingClientRect().height * .18)
     .attr("x", button_svg.node().getBoundingClientRect().width * .1)
     .attr("y", button_svg.node().getBoundingClientRect().height * .2)
+    .attr("id", "combo_button")
     .on("click", dispCombo);
 
 combo.append("text")
@@ -638,6 +656,7 @@ emissions.append("rect")
     .attr("height", button_svg.node().getBoundingClientRect().height * .18)
     .attr("x", button_svg.node().getBoundingClientRect().width * .1)
     .attr("y", button_svg.node().getBoundingClientRect().height * .4)
+    .attr("id", "emissions_button")
     .on("click", dispEmissions);
 
 emissions.append("text")
@@ -649,7 +668,7 @@ emissions.append("text")
 var emissions_pop = button_svg.append("g").attr("id", "pop").attr("class", "button_checked");
 
 emissions_pop.append("rect")
-    .attr("class", "button_checked")
+    .attr("class", "button_unchecked")
     .attr("id", "pop")
     .attr("width", button_svg.node().getBoundingClientRect().width * .422)
     .attr("height", button_svg.node().getBoundingClientRect().height * .1)
@@ -684,7 +703,7 @@ textE.attr("x", ((button_svg.node().getBoundingClientRect().width * .422) - text
 var emissions_cap = button_svg.append("g").attr("id", "cap").attr("class", "button_unchecked");
 
 emissions_cap.append("rect")
-    .attr("class", "button_unchecked")
+    .attr("class", "button_checked")
     .attr("id", "cap")
     .attr("width", button_svg.node().getBoundingClientRect().width * .42)
     .attr("height", button_svg.node().getBoundingClientRect().height * .1)
@@ -723,6 +742,7 @@ risk.append("rect")
     .attr("height", button_svg.node().getBoundingClientRect().height * .18)
     .attr("x", button_svg.node().getBoundingClientRect().width * .1)
     .attr("y", button_svg.node().getBoundingClientRect().height * .70)
+    .attr("id", "risk_button")
     .on("click", dispGain);
 
 risk.append("text")
@@ -735,19 +755,19 @@ risk.append("text")
 //Experimenting with info window
 var info_window_svg = d3.select("#infowindow")
     width = +info_window_svg.node().getBoundingClientRect().width,
-    height = +info_window_svg.node().getBoundingClientRect().height;
+    height = +info_window_svg.node().getBoundingClientRect().height + 20;
 
 info_window_svg.append("rect")
   .attr("class", "toggles_background")
   .attr("width", 175)
-  .attr("height", 150)
+  .attr("height", 180)
 
 // Info Window Text Objects
 info_window_svg.append("text")
                 .attr("id", "country")
                 .attr("text-anchor", "middle")
                 .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
-                .attr("y", info_window_svg.node().getBoundingClientRect().height * .1)
+                .attr("y", info_window_svg.node().getBoundingClientRect().height * 0.1)
                 .style("font-family", "optima")
                 .style("font-weight", "bold")
                 .text("Country Name");
@@ -756,7 +776,7 @@ info_window_svg.append("text")
                 .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
                 .attr("y", info_window_svg.node().getBoundingClientRect().height * .225)
                 .style("font-family", "optima")
-                .text("Risk Index");
+                .text("Risk Index, Rank");
 info_window_svg.append("text")
                 .attr("id", "risk_val")
                 .attr("text-anchor", "middle")
@@ -766,11 +786,12 @@ info_window_svg.append("text")
                 .text("Click on Country");
 
 info_window_svg.append("text")
+                .attr("id", "emissions_tag")
                 .attr("text-anchor", "middle")
                 .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
                 .attr("y", info_window_svg.node().getBoundingClientRect().height * .475)
                 .style("font-family", "optima")
-                .text("Emissions");
+                .text("Emissions (Total), Rank");
 
 info_window_svg.append("text")
                 .attr("id", "emissions_val")
@@ -779,6 +800,10 @@ info_window_svg.append("text")
                 .attr("y", info_window_svg.node().getBoundingClientRect().height * .6)
                 .style("font-family", "optima")
                 .text("Click on Country");
+
+
+
+
 
   // Zoom map upon mouse zoom
 function zoomed() {
@@ -903,6 +928,76 @@ function valuesToColor(ghgVal, gainVal) {
   // Specific to 2016 though... 
 
 }
+
+/* Bar Chart Stuff
+
+var bar_chart_svg = d3.select("#barchart")
+    width = +info_window_svg.node().getBoundingClientRect().width,
+    height = +info_window_svg.node().getBoundingClientRect().height;
+
+var margin = {top: 20, right: 20, bottom: 70, left: 40},
+    width = 600 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+bar_chart_svg.append("g")
+              .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+var y = d3.scale.linear().range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .tickFormat(d3.time.format("%Y-%m"));
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+
+d3.csv("bar-data.csv", function(error, data) {
+
+    data.forEach(function(d) {
+        d.date = parseDate(d.date);
+        d.value = +d.value;
+    });
+  
+  x.domain(data.map(function(d) { return d.date; }));
+  y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", "-.55em")
+      .attr("transform", "rotate(-90)" );
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Value ($)");
+
+  svg.selectAll("bar")
+      .data(data)
+    .enter().append("rect")
+      .style("fill", "steelblue")
+      .attr("x", function(d) { return x(d.date); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.value); })
+      .attr("height", function(d) { return height - y(d.value); });
+
+});
+*/
 
 </script>
 </body>
