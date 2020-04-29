@@ -100,7 +100,7 @@ div.tooltip-donut {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-family: optima;
+  font-family: sans-serif;
   font-size: 12px;
   cursor: pointer;
 }
@@ -135,7 +135,7 @@ div.tooltip-donut {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-family: optima;
+  font-family: sans-serif;
   font-size: 10px;
   cursor: pointer;
 }
@@ -158,7 +158,7 @@ div.tooltip-donut {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-family: optima;
+  font-family: sans-serif;
   font-size: 10px;
   cursor: pointer;
 }
@@ -212,12 +212,12 @@ var title = d3.select("h1")
     .text("Environmental Impact by Country")
     .style("text-align", "center")
     .style("font-weight", "bold")
-    .style("font-family", "optima");
+    .style("font-family", "sans-serif");
 
 var subtitle = d3.select("h3")
     .text("And the mismatch between emissions and climate change afflictions")
     .style("text-align", "center")
-    .style("font-family", "optima");
+    .style("font-family", "sans-serif");
 
 // The svg for map
 var svg = d3.select("#map"),
@@ -284,6 +284,20 @@ const BOTTOM_RIGHT = "#01665e" //Teal
 const TOP_RIGHT = "#000000"; //Black
 const NO_DATA = "white";*/
 
+const EMISSIONS_MAX = 11592.12;
+const EMISSIONS_MIN = -85.62;
+
+// Actual values
+// const EMISSIONS_PER_CAP_MAX = 87.0094717835182;
+// const EMISSIONS_PER_CAP_MIN = -50.4975855303968;
+
+//Makes map look better
+const EMISSIONS_PER_CAP_MAX = 70;
+const EMISSIONS_PER_CAP_MIN = 0;
+
+const GAIN_MAX = 76.1282969142505; 
+const GAIN_MIN = 15.9286664168974;
+
 
 //Set up initial state
 loadData(2016);
@@ -310,14 +324,14 @@ function loadData(year) {
 
 function set_up_color_scales() {
   gainColorScale = d3.scaleLinear()
-              .domain([20, 76])
+              .domain([GAIN_MIN, GAIN_MAX])
               //Right to Left because GAIN index is backwards from risk
               .range([BOTTOM_RIGHT, BOTTOM_LEFT]);
   ghgColorScale =  d3.scaleLinear()
-              .domain([-100, 12000])
+              .domain([EMISSIONS_MIN, EMISSIONS_MAX])
               .range([BOTTOM_LEFT, TOP_LEFT]);
   perCapGhgColorScale = d3.scaleLinear()
-              .domain([0, 35])
+              .domain([GAIN_MIN, GAIN_MAX])
               .range([BOTTOM_LEFT, TOP_LEFT]);
 }
 function ready(error, topo) {
@@ -458,7 +472,7 @@ svg.append("rect")
     .style("stroke-width", 1);
 svg.append("text")
   .style("fill", "black")
-  .style("font-family", "optima")
+  .style("font-family", "monospace")
     .style("font-size", "12px")
     .attr("x", 51.5)
     .attr("y", svg.node().getBoundingClientRect().height *.79)
@@ -588,7 +602,7 @@ toggle_title.append("text")
     .attr("text-anchor", "middle")
     .attr("x", button_svg.node().getBoundingClientRect().width * .45)
     .attr("y", button_svg.node().getBoundingClientRect().height * .1)
-    .style("font-family", "optima")
+    .style("font-family", "sans-serif")
     .text("Map Displays:");
 
 toggle_title.append("circle")
@@ -768,21 +782,21 @@ info_window_svg.append("text")
                 .attr("text-anchor", "middle")
                 .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
                 .attr("y", info_window_svg.node().getBoundingClientRect().height * 0.1)
-                .style("font-family", "optima")
+                .style("font-family", "sans-serif")
                 .style("font-weight", "bold")
                 .text("Country Name");
 info_window_svg.append("text")
                 .attr("text-anchor", "middle")
                 .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
                 .attr("y", info_window_svg.node().getBoundingClientRect().height * .225)
-                .style("font-family", "optima")
+                .style("font-family", "sans-serif")
                 .text("Risk Index, Rank");
 info_window_svg.append("text")
                 .attr("id", "risk_val")
                 .attr("text-anchor", "middle")
                 .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
                 .attr("y", info_window_svg.node().getBoundingClientRect().height * .35)
-                .style("font-family", "optima")
+                .style("font-family", "sans-serif")
                 .text("Click on Country");
 
 info_window_svg.append("text")
@@ -790,7 +804,7 @@ info_window_svg.append("text")
                 .attr("text-anchor", "middle")
                 .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
                 .attr("y", info_window_svg.node().getBoundingClientRect().height * .475)
-                .style("font-family", "optima")
+                .style("font-family", "sans-serif")
                 .text("Emissions (Total), Rank");
 
 info_window_svg.append("text")
@@ -798,7 +812,7 @@ info_window_svg.append("text")
                 .attr("text-anchor", "middle")
                 .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
                 .attr("y", info_window_svg.node().getBoundingClientRect().height * .6)
-                .style("font-family", "optima")
+                .style("font-family", "sans-serif")
                 .text("Click on Country");
 
 
