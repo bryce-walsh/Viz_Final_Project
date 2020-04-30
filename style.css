@@ -1,0 +1,164 @@
+/* SLIDER START */
+#slider {
+  position: absolute;
+  top: 86vh;
+  left: 4.5vw;
+  width: 90vw;
+  height: 10vh;
+}
+
+#slider line.track {
+  stroke: black;
+  stroke-width: 7px;
+}
+
+#slider line.track-inset {
+  stroke: steelblue;
+  stroke-width: 8px;
+}
+#slider line.track-overlay {
+  stroke: white;
+  stroke-width: 40px;
+  stroke-opacity: 0;
+  cursor: pointer;
+}
+#slider .handle {
+  fill: white;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+/* SLIDER END */
+
+body {
+  margin-bottom: none;
+  margin-top: 20px
+}
+
+h1 {
+  margin: 5px;
+  font-size: 25px;
+}
+
+h3 {
+  font-weight: normal;
+  margin: 0;
+  font-size: 17px;
+}
+
+div.tooltip-help {
+     position: absolute;
+     text-align: center;
+     padding-left: 15px;
+     padding-right: 15px;
+     background: white;
+     color: black;
+     border: 1px solid black;
+     border-radius: 8px;
+     pointer-events: none;
+     font-size: 12px;
+}
+
+div.tooltip {
+    position: absolute;    
+    text-align: center;      
+    padding: 5px;
+    font-size: 12px;
+    font-family: "Times New Roman", Times, serif;; 
+    color: white;
+    background: gray;
+    border: 0px;    
+    border-radius: 8px; 
+    pointer-events: none;    
+}
+
+.background {
+  fill: none;
+  stroke: lightgray;
+  stroke-width: 2.5px;
+  pointer-events: all;
+}
+
+.zoom rect {
+  stroke: lightgrey;
+  stroke-width: 2px;
+  fill: lightgrey;
+  cursor: pointer;
+}
+
+.zoom text {
+  font-size: 11px;
+  font-family: "Times New Roman";
+  fill: black;
+  pointer-events: none;
+  cursor: pointer;
+  text-anchor: middle;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.button rect {
+  stroke: lightgrey;
+  stroke-width: 2px;
+  fill: lightgrey;
+  cursor: pointer;
+}
+
+.button rect.pressed {
+  fill: darkgray; 
+  cursor: pointer;
+}
+
+.button text {
+  font-size: 11px;
+  font-family: "Times New Roman";
+  fill: black;
+  pointer-events: none;
+  cursor: pointer;
+  text-anchor: middle;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.toggles_background {
+  fill: none;
+  pointer-events: all;
+}
+
+.riskGradient {
+  fill:   none;
+  stroke: url(#gradientR);
+  stroke-width: 10;
+}
+
+.EmissionsGradient {
+  fill:   none;
+  stroke: url(#gradientE);
+  stroke-width: 10;
+}
+
+#map{
+    position: absolute;
+    top: 15vh;
+    left: 30vw;
+    width: 65vw;
+    height: 65vh;
+}
+
+#toggles{
+    position: absolute;
+    top: 14vh;
+    left: 5vw;
+    fill: black;
+    width: 25vw;
+    height: 30vh;
+}
+
+#infowindow{
+    position: absolute;
+    top: 53vh;
+    left: 5vw;
+    width: 20vw;
+    height: 25vh;
+} 
