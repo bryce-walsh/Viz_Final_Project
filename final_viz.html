@@ -99,10 +99,17 @@ const NO_DATA = "lightgrey";*/
 
 /*Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=7
 const BOTTOM_LEFT = "#b1b1b1"; //Grey
-const TOP_LEFT = "#8c510a"; //Brown
+const TOP_LEFT = "#8c510a"; //Bin
 const BOTTOM_RIGHT = "#01665e" //Teal
 const TOP_RIGHT = "#000000"; //Black
 const NO_DATA = "white";*/
+
+//NEW COLOR CONSTANT
+//Will work with any color list from https://benjaminbrooke.me/visualizations/bivariate-choropleth-color-generator/
+const COLOR_LIST = ["#d3d3d3", "#c1b8c5", "#af9cb9", "#9c82ac", "#8b689f", "#ccc7b3", "#baada8", "#a9949d", "#977b92", "#866287", "#c5bb93", "#b4a38a", "#a38b81", "#927478", "#825c6f", "#bdaf73", "#ad986b", "#9d8264", "#8c6c5d", "#7d5656", "#b6a352", "#a68e4d", "#977948", "#876443", "#78503e"]
+//const COLOR_LIST = ["#d3d3d3", "#8b689f", "#b6a352", "#78503e"]
+
+var color_matrix = create_color_matrix();
 
 const EMISSIONS_MAX = 11592.12;
 const EMISSIONS_MIN = -85.62;
@@ -118,6 +125,14 @@ const EMISSIONS_PER_CAP_MIN = 0;
 const GAIN_MAX = 76.1282969142505; 
 const GAIN_MIN = 15.9286664168974;
 
+//key constants
+const BASE_X = 28;
+const SQUARE_SIZE = 23;
+const TEXT_HEIGHT = 42;
+const SPACE = 3;
+
+create_key();
+
 
 //Set up initial state
 loadData(2016);
@@ -126,7 +141,7 @@ const DisplayType = {
    GAIN: 2,
    COMBO: 3
 };
-
+var per_capita = false;
 var display = DisplayType.COMBO;
 
 function ready(error, topo) {
@@ -164,74 +179,6 @@ function ready(error, topo) {
 var div = d3.select("body").append("div") 
     .attr("class", "tooltip")    
     .style("opacity", 0);
-
-
-const BASE_X = 28;
-const SQUARE_SIZE = 23;
-const TEXT_HEIGHT = 24;
-const SPACE = 3;
-// Draw four rectangles and labels for matrix key
-keySvg.append("rect")
-    .attr("id", "Min_Each")
-    .attr("width", SQUARE_SIZE)
-    .attr("height", SQUARE_SIZE)
-    .attr("x", BASE_X)
-    .attr("y", keySvg.node().getBoundingClientRect().height - TEXT_HEIGHT - SQUARE_SIZE)
-    .attr("fill", BOTTOM_LEFT)
-keySvg.append("rect")
-    .attr("id", "Max_Risk")
-    .attr("width", SQUARE_SIZE)
-    .attr("height", SQUARE_SIZE)
-    .attr("x", BASE_X + SQUARE_SIZE + SPACE)
-    .attr("y", keySvg.node().getBoundingClientRect().height - TEXT_HEIGHT - SQUARE_SIZE)
-    .attr("fill", BOTTOM_RIGHT);
-keySvg.append("rect")
-    .attr("id", "Max_Emissions")
-    .attr("width", SQUARE_SIZE)
-    .attr("height", SQUARE_SIZE)
-    .attr("x", BASE_X)
-    .attr("y", keySvg.node().getBoundingClientRect().height - TEXT_HEIGHT - 2 * SQUARE_SIZE - SPACE)
-    .attr("fill", TOP_LEFT);
-keySvg.append("rect")
-    .attr("id", "Max_Combo")
-    .attr("width", SQUARE_SIZE)
-    .attr("height", SQUARE_SIZE)
-    .attr("x", BASE_X + SQUARE_SIZE + SPACE)
-    .attr("y", keySvg.node().getBoundingClientRect().height - TEXT_HEIGHT - 2 * SQUARE_SIZE - SPACE)
-    .attr("fill", TOP_RIGHT);
-keySvg.append("text")
-	.style("fill", "black")
-	.style("font-family", "monospace")
-    .style("font-size", "12px")
-    .attr("y", 18)
-    .attr("x", 0 - keySvg.node().getBoundingClientRect().height *.945)
-    .attr("text-anchor", "left")
-    .attr("transform", "rotate(270)")
-    .text("Emissions ->");
-keySvg.append("text")
-	.style("fill", "black")
-	.style("font-family", "monospace")
-    .style("font-size", "12px")
-    .attr("x", BASE_X)
-    .attr("y", keySvg.node().getBoundingClientRect().height *.98)
-    .attr("text-anchor", "left")
-    .text("Risk Index ->");
-// keySvg.append("rect")
-//     .attr("width", SQUARE_SIZE)
-//     .attr("height", SQUARE_SIZE)
-//     .attr("x", 40)
-//     .attr("y", keySvg.node().getBoundingClientRect().height *.70)
-//     .attr("fill", NO_DATA)
-//     .style("stroke", NO_DATA)
-//     .style("stroke-width", 1);
-// keySvg.append("text")
-//   .style("fill", "black")
-//   .style("font-family", "monospace")
-//     .style("font-size", "12px")
-//     .attr("x", 51.5)
-//     .attr("y", keySvg.node().getBoundingClientRect().height *.79)
-//     .attr("text-anchor", "middle")
-//     .text("No Data");
 
 /* TIMELINE START */
 var range = [1995, 2016],
@@ -340,10 +287,10 @@ function clearAll() {
 
 /* MAP BUTTON END */
 
+// HELP TOOLTIP CODE
 // var button_svg = d3.select('#toggles'),
 //     width = +button_svg.node().getBoundingClientRect().width,
 //     height = +button_svg.node().getBoundingClientRect().height;
- var per_capita = false;
 
 // var help = d3.select("body").append("div")
 //                   .attr("class", "tooltip-help")

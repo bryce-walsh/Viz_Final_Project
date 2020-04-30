@@ -12,17 +12,73 @@ function loadData(year) {
 }
 
 function set_up_color_scales() {
-  gainColorScale = d3.scaleLinear()
+  gainRange = [];
+  for (i = 0; i < color_matrix.length; i++) {
+    gainRange.push(color_matrix[i][0])
+  }
+  gainRange = gainRange.reverse()
+  gainColorScale = d3.scaleQuantize()
               .domain([GAIN_MIN, GAIN_MAX])
               //Right to Left because GAIN index is backwards from risk
-              .range([BOTTOM_RIGHT, BOTTOM_LEFT]);
-  ghgColorScale =  d3.scaleLinear()
+              .range(gainRange);
+  ghgColorScale =  d3.scaleQuantize()
               .domain([EMISSIONS_MIN, EMISSIONS_MAX])
-              .range([BOTTOM_LEFT, TOP_LEFT]);
-  perCapGhgColorScale = d3.scaleLinear()
-              .domain([GAIN_MIN, GAIN_MAX])
-              .range([BOTTOM_LEFT, TOP_LEFT]);
+              .range(color_matrix[0]);
+  perCapGhgColorScale = d3.scaleQuantize()
+              .domain([EMISSIONS_PER_CAP_MIN, EMISSIONS_PER_CAP_MAX])
+              .range(color_matrix[0]);
 }
+
+//Get color matrix from the constant color list
+function create_color_matrix() {
+  var color_matrix = new Array(Math.sqrt(COLOR_LIST.length));
+
+  for (var i = 0; i < color_matrix.length; i++) {
+    color_matrix[i] = new Array(Math.sqrt(COLOR_LIST.length));
+  };
+
+  list_counter = 0;
+  for (var y = 0; y < Math.sqrt(COLOR_LIST.length); y++){
+    for (var x = 0; x < Math.sqrt(COLOR_LIST.length); x++) {
+      color_matrix[x][y] = COLOR_LIST[list_counter];
+      list_counter += 1;
+    }
+  }
+  return color_matrix;
+}
+
+//Create the key using 
+function create_key() {
+  for (var x = 0; x < Math.sqrt(COLOR_LIST.length); x++){
+    for (var y = 0; y < Math.sqrt(COLOR_LIST.length); y++) {
+    keySvg.append("rect")
+    .attr("id", "Square" + x + "_" + y)
+    .attr("width", SQUARE_SIZE)
+    .attr("height", SQUARE_SIZE)
+    .attr("x", BASE_X + SQUARE_SIZE * x + SPACE * x)
+    .attr("y", keySvg.node().getBoundingClientRect().height - TEXT_HEIGHT - SQUARE_SIZE * y - SPACE * y)
+    .attr("fill", color_matrix[x][y])
+    }
+  }
+  keySvg.append("text")
+  .style("fill", "black")
+  .style("font-family", "monospace")
+    .style("font-size", "12px")
+    .attr("y", 18)
+    .attr("x", 0 - keySvg.node().getBoundingClientRect().height *.945)
+    .attr("text-anchor", "left")
+    .attr("transform", "rotate(270)")
+    .text("Emissions ->");
+  keySvg.append("text")
+  .style("fill", "black")
+  .style("font-family", "monospace")
+    .style("font-size", "12px")
+    .attr("x", BASE_X)
+    .attr("y", keySvg.node().getBoundingClientRect().height *.98)
+    .attr("text-anchor", "left")
+    .text("Risk Index ->");
+}
+
 
 /*** Function to get Country Values ***/
 function displayVals(d, i){
