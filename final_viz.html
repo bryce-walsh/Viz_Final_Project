@@ -8,6 +8,7 @@
 <script src="js/d3.v4.min.js"></script>
 <script src="js/helper_functions.js"></script>
 <script src="js/d3.button.js"></script>
+<script src="js/d3.checkbox.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
 <!-- Create an element where the map will take place -->
@@ -17,7 +18,7 @@
 <!-- <svg id="toggles"></svg> -->
 <svg id="infowindow"></svg>
 <svg id="slider"></svg>
-<svg id="barchart"></svg>
+<div id="barchart"></div>
 
 <script>
 
@@ -262,6 +263,16 @@ var dataZoom = [{label: "+", x: 25, y: 25},
 var button = d3.button()
     .on('press', function(d, i) { clearAll(); })
     .on('release', function(d, i) { console.log("Released", d, i, this.parentNode)});
+
+/*
+svg.append("foreignObject")
+    .attr("y", height - 30)
+    .attr("x", 250)
+    .attr("width", 100)
+    .attr("height", 30)
+  .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html("<input type='checkbox' id ='myCheckbox'> Per Capita");*/
 
 // Add buttons
 var buttons = svg.selectAll('.button')
