@@ -1,13 +1,13 @@
 function d3CheckBox () {
 
-    var size = 20,
+    var size = 18,
         x = 0,
         y = 0,
         rx = 0,
         ry = 0,
-        markStrokeWidth = 3,
-        boxStrokeWidth = 3,
-        checked = false,
+        markStrokeWidth = 1,
+        boxStrokeWidth = 2,
+        checked = true,
         clickEvent;
 
     function checkBox (selection) {
@@ -20,35 +20,34 @@ function d3CheckBox () {
             .attr("y", y)
             .attr("rx", rx)
             .attr("ry", ry)
-            .style({
-                "fill-opacity": 0,
-                "stroke-width": boxStrokeWidth,
-                "stroke": "black"
-            });
+            .style("fill", "lightgray")
+            .style("stroke-width", boxStrokeWidth)
+            .style("stroke", "lightgray")
+            .style("cursor", "pointer");
 
         //Data to represent the check mark
         var coordinates = [
-            {x: x + (size / 8), y: y + (size / 3)},
+            {x: x + (size / 5), y: y + (size / 2)},
             {x: x + (size / 2.2), y: (y + size) - (size / 4)},
-            {x: (x + size) - (size / 8), y: (y + (size / 10))}
+            {x: (x + size) - (size / 5), y: (y + (size / 5))}
         ];
 
-        var line = d3.svg.line()
+        var line = d3.line()
                 .x(function(d){ return d.x; })
                 .y(function(d){ return d.y; })
-                .interpolate("basic");
+                .curve(d3.curveLinear);
 
         var mark = g.append("path")
             .attr("d", line(coordinates))
-            .style({
-                "stroke-width" : markStrokeWidth,
-                "stroke" : "black",
-                "fill" : "none",
-                "opacity": (checked)? 1 : 0
-            });
+            .style("stroke-width", markStrokeWidth)
+            .style("stroke", "black")
+            .style("fill", "none")
+            .style("opacity", (checked)? 1 : 0)
+            .style("cursor", "pointer");
 
         g.on("click", function () {
             checked = !checked;
+
             mark.style("opacity", (checked)? 1 : 0);
 
             if(clickEvent)
