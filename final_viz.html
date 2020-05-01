@@ -317,9 +317,9 @@ svg.append("text")
     .attr("height", height + margin.top + margin.bottom)
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var data = [{country: " ", value: 0, id: "top"},
-              {country: "  ", value: 0, id: "middle"},
-              {country: "   ", value: 0, id: "bottom"}];
+  data = [{country: " ",  value: 2, id: "x", color: "#white"},
+              {country: "  ", value: 3, id: "USA", color: "white"},
+              {country: "   ", value: 4, id: "y", color: "white"}];
 
   // Scale the range of the data in the domains
   x.domain(data.map(function(d) { return d.country; }));
@@ -429,10 +429,10 @@ function press(d, i) {
   }
 
 function update_barchart_click(d) {
-  var midColor = g.select("." + d.id).attr("fill");
   var topID = null;
   var bottomID = null;
   if (display == DisplayType.RISK) {
+    var midColor = g.select("." + d.id).attr("fill");
     d3.select(".tooltip-help").style("visibility", "hidden");
     d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
@@ -449,6 +449,7 @@ function update_barchart_click(d) {
               {country: countryNames.get(d.id), value: riskData.get(d.id), id: d.id, color: midColor},
               {country: countryNames.get(bottomID), value: riskData.get(bottomID), id: bottomID, color: "#F5E89D"}];
   } else if (display == DisplayType.EMISSIONS) {
+    var midColor = g.select("." + d.id).attr("fill");
     d3.select(".tooltip-help").style("visibility", "hidden");
     d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
@@ -522,8 +523,8 @@ function update_barchart_year() {
   var topID = null;
   var bottomID = null;
   var middleID = data[1].id
-  var midColor = data[1].color;
   if (display == DisplayType.RISK) {
+    var midColor = g.select("." + middleID).attr("fill");
     d3.select(".tooltip-help").style("visibility", "hidden");
     d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
@@ -541,6 +542,7 @@ function update_barchart_year() {
               {country: countryNames.get(middleID), value: riskData.get(middleID), id: middleID, color: midColor},
               {country: countryNames.get(bottomID), value: riskData.get(bottomID), id: bottomID, color: "#F5E89D"}];
   } else if (display == DisplayType.EMISSIONS) {
+    var midColor = g.select("." + middleID).attr("fill");
     d3.select(".tooltip-help").style("visibility", "hidden");
     d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
