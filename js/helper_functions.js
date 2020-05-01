@@ -17,14 +17,14 @@ function set_up_color_scales() {
     gainRange.push(color_matrix[i][0])
   }
   gainRange = gainRange.reverse()
-  gainColorScale = d3.scaleQuantize()
+  gainColorScale = d3.scaleQuantile()
               .domain([GAIN_MIN, GAIN_MAX])
               //Right to Left because GAIN index is backwards from risk
               .range(gainRange);
-  ghgColorScale =  d3.scaleQuantize()
+  ghgColorScale =  d3.scaleQuantile()
               .domain([EMISSIONS_MIN, EMISSIONS_MAX])
               .range(color_matrix[0]);
-  perCapGhgColorScale = d3.scaleQuantize()
+  perCapGhgColorScale = d3.scaleQuantile()
               .domain([EMISSIONS_PER_CAP_MIN, EMISSIONS_PER_CAP_MAX])
               .range(color_matrix[0]);
 }
@@ -187,34 +187,61 @@ function average(array) {
 
 /********** Color countries based on value *********/
 
+function valueToIndex(value, quantileArray) {
+  for(var i = 0; i < quantileArray.length; i++) {
+    if (value >= quantileArray[i] && (value <= quantileArray[i + 1] || quantileArray[i+1] == undefined)) {
+      return i + 1;
+    }
+  }
+  return 0;
+}
+
+function getQuantileArray(values) {
+  values = values.sort();
+  buckets = Math.sqrt(COLOR_LIST.length);
+  quantileIncrement = 1.0 / buckets;
+  quantileArray = [];
+  for (var quantile = quantileIncrement; quantile < 1.0; quantile += quantileIncrement) {
+    quantileArray.push(d3.quantile(values, quantile))
+  }
+  return quantileArray;
+}
+
 function fillCountryColor() {
   displayPerCap = per_capita;
-  var ghgMidpoint = average(ghgData.values());
-  var gainMidpoint = average(gainData.values());
-  var perCapMidpoint = average(perCapGhgData.values());
+  var ghgQuantileArray = getQuantileArray(ghgData.values());
+  var gainQuantileArray = getQuantileArray(gainData.values());
+  var perCapQuantileArray = getQuantileArray(perCapGhgData.values());
   g.selectAll("path")
     .attr("fill", function (d) {
-
           ghgVal = ghgData.get(d.id);
           gainVal = gainData.get(d.id);
           perCapGhgVal = perCapGhgData.get(d.id);
-          ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal; 
-
-          ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
-
-          if (typeof ghgDisplayVal == 'undefined' || typeof gainVal == 'undefined') {
+          if (typeof ghgVal == 'undefined' || typeof gainVal == 'undefined' || typeof perCapGhgVal == 'undefined') {
             return NO_DATA;
-          } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal >= gainMidpoint) {
-            return BOTTOM_LEFT;
-          } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal >= gainMidpoint) {
-            return TOP_LEFT;
-          } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal < gainMidpoint) {
-            return BOTTOM_RIGHT;
-          } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal < gainMidpoint) {
-            return TOP_RIGHT;
           } else {
-            return "black";
-          }
+            gainCoordinate = gainQuantileArray.length - valueToIndex(gainVal, gainQuantileArray);
+            ghgCoordinate = displayPerCap ? valueToIndex(perCapGhgVal, perCapQuantileArray): valueToIndex(ghgVal, ghgQuantileArray); 
+            return color_matrix[gainCoordinate][ghgCoordinate];
+          } 
+          // perCapGhgVal = perCapGhgData.get(d.id);
+          // ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal; 
+
+          // ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
+
+          // if (typeof ghgDisplayVal == 'undefined' || typeof gainVal == 'undefined') {
+          //   return NO_DATA;
+          // } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal >= gainMidpoint) {
+          //   return BOTTOM_LEFT;
+          // } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal >= gainMidpoint) {
+          //   return TOP_LEFT;
+          // } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal < gainMidpoint) {
+          //   return BOTTOM_RIGHT;
+          // } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal < gainMidpoint) {
+          //   return TOP_RIGHT;
+          // } else {
+          //   return "black";
+          // }
         })
 }
 function fillGainColor() {
