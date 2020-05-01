@@ -224,25 +224,7 @@ function fillCountryColor() {
             ghgCoordinate = displayPerCap ? valueToIndex(perCapGhgVal, perCapQuantileArray): valueToIndex(ghgVal, ghgQuantileArray); 
             return color_matrix[gainCoordinate][ghgCoordinate];
           } 
-          // perCapGhgVal = perCapGhgData.get(d.id);
-          // ghgDisplayVal = displayPerCap ? perCapGhgVal : ghgVal; 
-
-          // ghgDisplayMidpoint = displayPerCap ? perCapMidpoint : ghgMidpoint
-
-          // if (typeof ghgDisplayVal == 'undefined' || typeof gainVal == 'undefined') {
-          //   return NO_DATA;
-          // } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal >= gainMidpoint) {
-          //   return BOTTOM_LEFT;
-          // } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal >= gainMidpoint) {
-          //   return TOP_LEFT;
-          // } else if (ghgDisplayVal <= ghgDisplayMidpoint && gainVal < gainMidpoint) {
-          //   return BOTTOM_RIGHT;
-          // } else if (ghgDisplayVal > ghgDisplayMidpoint && gainVal < gainMidpoint) {
-          //   return TOP_RIGHT;
-          // } else {
-          //   return "black";
-          // }
-        })
+        });
 }
 function fillGainColor() {
   var gainMidpoint = average(gainData.values());

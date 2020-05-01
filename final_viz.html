@@ -300,7 +300,7 @@ function clearAll() {
 
 /* CHECKBOX START */
 
-var update = function () { var checked3 = checkBox3.checked(); per_capita = !per_capita; };
+var update = function () { var checked3 = checkBox3.checked(); per_capita = !per_capita; reload_map()};
 
 var checkBox3 = new d3CheckBox();
 checkBox3.x(255).y(height - 32).checked(true).clickEvent(update);
