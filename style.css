@@ -34,10 +34,10 @@
 /* SLIDER START */
 #slider {
   position: absolute;
-  top: 86vh;
+  top: 83vh;
   left: 4.5vw;
   width: 90vw;
-  height: 10vh;
+  height: 15vh;
 }
 
 #slider line.track {
@@ -111,6 +111,22 @@ div.barchart_title {
      left: 5vw;
      font-style: italic;
      visibility: hidden;
+}
+
+div.sources {
+     position: absolute;
+     text-align: left;
+     padding-left: 2px;
+     padding-right: 2px;
+     background: white;
+     color: black;
+     pointer-events: none;
+     font-family: "Times New Roman";
+     font-size: 10px;
+     width: 35vw;
+     height: 4vh;
+     top: 93vh;
+     left: 1vw;
 }
 
 div.tooltip {
