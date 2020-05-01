@@ -107,7 +107,7 @@ const NO_DATA = "white";*/
 
 //NEW COLOR CONSTANT
 //Will work with any color list from https://benjaminbrooke.me/visualizations/bivariate-choropleth-color-generator/
-const COLOR_LIST = ["#d3d3d3", "#c1b8c5", "#af9cb9", "#9c82ac", "#8b689f", "#ccc7b3", "#baada8", "#a9949d", "#977b92", "#866287", "#c5bb93", "#b4a38a", "#a38b81", "#927478", "#825c6f", "#bdaf73", "#ad986b", "#9d8264", "#8c6c5d", "#7d5656", "#b6a352", "#a68e4d", "#977948", "#876443", "#78503e"]
+const COLOR_LIST = ["#f5e89d", "#efc185", "#ea986c", "#e36b51", "#db302d", "#e7ca76", "#e7c176", "#e7986c", "#e36b51", "#db302d", "#daad4f", "#daad4f", "#da984f", "#da6b4f", "#da302d", "#cc8f28", "#cc8f28", "#cc8f28", "#cc6b28", "#cc3028", "#be7000", "#be7000", "#be7000", "#be6b00", "#be3000"]
 //const COLOR_LIST = ["#d3d3d3", "#8b689f", "#b6a352", "#78503e"]
 
 var color_matrix = create_color_matrix();
@@ -127,7 +127,7 @@ const GAIN_MAX = 76.1282969142505;
 const GAIN_MIN = 15.9286664168974;
 
 //key constants
-const BASE_X = 28;
+const BASE_X = (keySvg.node().getBoundingClientRect().width * .3);
 const SQUARE_SIZE = 23;
 const TEXT_HEIGHT = 42;
 const SPACE = 3;
@@ -290,6 +290,11 @@ var buttons2 = svg.selectAll('.zoom')
     .append('g')
     .attr('class', 'zoom')
     .call(button);
+
+var shadow = d3.select("#d3-button2").select('filter');
+shadow.select('feOffset').attr('dx', 0).attr('dy', 0);
+shadow.select('feGaussianBlur').attr('stdDeviation', 0);
+d3.select("#d3-button2").select("rect").classed("pressed", true);
 
 function clearAll() {
   buttons.selectAll('rect')
@@ -622,7 +627,7 @@ function displayTooltip (d){
   fixedEmissionsVal = (typeof emissionsVal == 'undefined') ? "No Value" : Math.round((emissionsVal + Number.EPSILON) * 100) / 100;
   //emissionsClarifier = per_capita ? "(Per Capita)" : "(Total)";
 
-  emissionsString = "Emissions " /*+ emissionsClarifier*/ + ": " + fixedEmissionsVal;
+  emissionsString = "Emissions" /*+ emissionsClarifier*/ + ": " + fixedEmissionsVal;
 
   if (display == DisplayType.COMBO) {
     div.html(d.properties.name + "</br>" + riskString + "</br>" +  emissionsString)  

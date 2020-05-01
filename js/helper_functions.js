@@ -55,28 +55,28 @@ function create_key() {
     .attr("id", "Square" + x + "_" + y)
     .attr("width", SQUARE_SIZE)
     .attr("height", SQUARE_SIZE)
-    .attr("x", BASE_X + SQUARE_SIZE * x + SPACE * x)
+    .attr("x",  BASE_X + SQUARE_SIZE * x + SPACE * x)
     .attr("y", keySvg.node().getBoundingClientRect().height - TEXT_HEIGHT - SQUARE_SIZE * y - SPACE * y)
     .attr("fill", color_matrix[x][y])
     }
   }
   keySvg.append("text")
   .style("fill", "black")
-  .style("font-family", "monospace")
-    .style("font-size", "12px")
-    .attr("y", 18)
-    .attr("x", 0 - keySvg.node().getBoundingClientRect().height *.945)
-    .attr("text-anchor", "left")
+  .style("font-family", "Times New Roman")
+    .style("font-size", "15px")
+    .attr("y", BASE_X - 10)
+    .attr("x", 0 - BASE_X * .75)
+    .attr("text-anchor", "middle")
     .attr("transform", "rotate(270)")
-    .text("Emissions ->");
+    .text("Emissions");
   keySvg.append("text")
   .style("fill", "black")
-  .style("font-family", "monospace")
-    .style("font-size", "12px")
-    .attr("x", BASE_X)
-    .attr("y", keySvg.node().getBoundingClientRect().height *.98)
-    .attr("text-anchor", "left")
-    .text("Risk Index ->");
+  .style("font-family", "Times New Roman")
+    .style("font-size", "15px")
+    .attr("x", keySvg.node().getBoundingClientRect().width * .51)
+    .attr("y", keySvg.node().getBoundingClientRect().height)
+    .attr("text-anchor", "middle")
+    .text("Risk Index");
 }
 
 
