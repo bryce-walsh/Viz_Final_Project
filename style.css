@@ -120,10 +120,9 @@ div.sources {
      padding-right: 2px;
      background: white;
      color: black;
-     pointer-events: none;
      font-family: "Times New Roman";
      font-size: 10px;
-     width: 35vw;
+     width: 100vw;
      height: 4vh;
      top: 93vh;
      left: 1vw;
