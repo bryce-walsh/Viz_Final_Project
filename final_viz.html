@@ -455,11 +455,13 @@ function update_barchart_click(d) {
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
     if (per_capita) {
+      var maxRank = 0;
       perCapGhgRankData.each(function(v, k) {
         if (v == 1) {
           topID = k;
-        } else if (v == 188) {
+        } else if (v > maxRank) {
           bottomID = k;
+          maxRank = v;
         }
       });
       data = [{country: countryNames.get(topID),  value: perCapGhgData.get(topID), id: topID, color: "#BE7000"},
@@ -545,11 +547,13 @@ function update_barchart_year() {
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
     if (per_capita) {
+      var maxRank = 0;
       perCapGhgRankData.each(function(v, k) {
         if (v == 1) {
           topID = k;
-        } else if (v == 188) {
+        } else if (v > maxRank) {
           bottomID = k;
+          maxRank = v;
         }
       });
       data = [{country: countryNames.get(topID),  value: perCapGhgData.get(topID), id: topID, color: "#BE7000"},
