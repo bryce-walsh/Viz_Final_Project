@@ -2,9 +2,9 @@
 function loadData(year) {
   d3.queue()
   .defer(d3.json, "js/world.geojson")
-  .defer(d3.csv, "ND_GAIN_Data/gain/risk.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "ND_GAIN_Data/gain/risk.csv", function(d) {  riskData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[year]); })
-  .defer(d3.csv, "ND_GAIN_Data/gain/risk_rankings.csv", function(d) {  gainRankData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "ND_GAIN_Data/gain/risk_rankings.csv", function(d) {  riskRankData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_rankings.csv", function(d) {  ghgRankData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_per_cap_no_nans.csv", function(d) {perCapGhgData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_per_cap_rankings.csv", function(d) {perCapGhgRankData.set(d.ISO3, +d[year]); })
@@ -13,13 +13,13 @@ function loadData(year) {
 }
 
 function set_up_color_scales() {
-  gainRange = [];
+  riskRange = [];
   for (i = 0; i < color_matrix.length; i++) {
-    gainRange.push(color_matrix[i][0])
+    riskRange.push(color_matrix[i][0])
   }
-  gainColorScale = d3.scaleQuantile()
-              .domain([GAIN_MIN, GAIN_MAX])
-              .range(gainRange);
+  riskColorScale = d3.scaleQuantile()
+              .domain([RISK_MIN, RISK_MAX])
+              .range(riskRange);
   ghgColorScale =  d3.scaleQuantile()
               .domain([EMISSIONS_MIN, EMISSIONS_MAX])
               .range(color_matrix[0]);
@@ -85,17 +85,17 @@ function displayVals(d, i){
   d3.select("#country")
     .text(d.properties.name)
   if (per_capita == true){
-      gainVal = gainData.get(d.id)
+      riskVal = riskData.get(d.id)
       d3.select("#emissions_tag")
         .text("Emissions (Per Capita), Rank")
-      if (typeof gainVal == 'undefined') {
+      if (typeof riskVal == 'undefined') {
         d3.select("#risk_val")
             .text("No Value")
       } else {
-          gainVal = Math.round((gainVal + Number.EPSILON) * 100) / 100
-          gainRank = gainRankData.get(d.id)
+          riskVal = Math.round((riskVal + Number.EPSILON) * 100) / 100
+          riskRank = riskRankData.get(d.id)
           d3.select("#risk_val")
-            .text(String(gainVal) + ", " + String(gainRank))
+            .text(String(riskVal) + ", " + String(riskRank))
       }
       ghgVal = perCapGhgData.get(d.id)
       if (typeof ghgVal == 'undefined') {
@@ -108,17 +108,17 @@ function displayVals(d, i){
             .text(String(ghgVal) + ", " + String(ghgRank))
       }
   } else{
-      gainVal = gainData.get(d.id)
+      riskVal = riskData.get(d.id)
       d3.select("#emissions_tag")
         .text("Emissions (Total), Rank")
-      if (typeof gainVal == 'undefined') {
+      if (typeof riskVal == 'undefined') {
         d3.select("#risk_val")
             .text("No Value")
       } else {
-          gainVal = Math.round((gainVal + Number.EPSILON) * 100) / 100
-          gainRank = gainRankData.get(d.id)
+          riskVal = Math.round((riskVal + Number.EPSILON) * 100) / 100
+          riskRank = riskRankData.get(d.id)
           d3.select("#risk_val")
-            .text(String(gainVal) + ", " + String(gainRank))
+            .text(String(riskVal) + ", " + String(riskRank))
       }
       ghgVal = ghgData.get(d.id)
       if (typeof ghgVal == 'undefined') {
@@ -210,32 +210,32 @@ function getQuantileArray(values) {
 function fillCountryColor() {
   displayPerCap = per_capita;
   var ghgQuantileArray = getQuantileArray(ghgData.values());
-  var gainQuantileArray = getQuantileArray(gainData.values());
+  var riskQuantileArray = getQuantileArray(riskData.values());
   var perCapQuantileArray = getQuantileArray(perCapGhgData.values());
   g.selectAll("path")
     .attr("class", function (d) { return d.id; })
     .attr("fill", function (d) {
           ghgVal = ghgData.get(d.id);
-          gainVal = gainData.get(d.id);
+          riskVal = riskData.get(d.id);
           perCapGhgVal = perCapGhgData.get(d.id);
-          if (typeof ghgVal == 'undefined' || typeof gainVal == 'undefined' || typeof perCapGhgVal == 'undefined') {
+          if (typeof ghgVal == 'undefined' || typeof riskVal == 'undefined' || typeof perCapGhgVal == 'undefined') {
             return NO_DATA;
           } else {
-            gainCoordinate = valueToIndex(gainVal, gainQuantileArray);
+            riskCoordinate = valueToIndex(riskVal, riskQuantileArray);
             ghgCoordinate = displayPerCap ? valueToIndex(perCapGhgVal, perCapQuantileArray): valueToIndex(ghgVal, ghgQuantileArray); 
-            return color_matrix[gainCoordinate][ghgCoordinate];
+            return color_matrix[riskCoordinate][ghgCoordinate];
           } 
         });
 }
 function fillGainColor() {
-  var gainMidpoint = average(gainData.values());
+  var riskMidpoint = average(riskData.values());
   g.selectAll("path")
     .attr("class", function (d) { return d.id; })
     .attr("fill", function (d) {
-          if (typeof gainData.get(d.id) == 'undefined') {
+          if (typeof riskData.get(d.id) == 'undefined') {
             return NO_DATA;
           } else {
-            return gainColorScale(gainData.get(d.id));
+            return riskColorScale(riskData.get(d.id));
           }
         })
 }
@@ -262,7 +262,7 @@ function fillEmissionsColor() {
 
 function dispGain(){
 
-    display = DisplayType.GAIN;
+    display = DisplayType.RISK;
     var maxRisk = d3.select('#Max_Risk')
                   .attr('opacity', 100)
     var maxCombo = d3.select('#Max_Combo')
@@ -298,7 +298,7 @@ function reload_map() {
       case DisplayType.EMISSIONS:
         fillEmissionsColor();
         break;
-      case DisplayType.GAIN:
+      case DisplayType.RISK:
         fillGainColor();
         break;
       case DisplayType.COMBO:
