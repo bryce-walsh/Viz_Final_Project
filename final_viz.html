@@ -8,6 +8,7 @@
 <script src="js/d3.v4.min.js"></script>
 <script src="js/helper_functions.js"></script>
 <script src="js/d3.button.js"></script>
+<script src="js/d3.checkbox.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
 <!-- Create an element where the map will take place -->
@@ -17,7 +18,7 @@
 <!-- <svg id="toggles"></svg> -->
 <svg id="infowindow"></svg>
 <svg id="slider"></svg>
-<svg id="barchart"></svg>
+<div id="barchart"></div>
 
 <script>
 
@@ -141,13 +142,13 @@ const DisplayType = {
    GAIN: 2,
    COMBO: 3
 };
-var per_capita = false;
+var per_capita = true;
 var display = DisplayType.COMBO;
 
 function ready(error, topo) {
   var projection = d3.geoMercator()
-                    .scale(110)
-                    .center([0,43])
+                    .scale(100)
+                    .center([0,32])
                     .translate([svg.node().getBoundingClientRect().width / 2, 
                                 svg.node().getBoundingClientRect().height / 2]);
   // Background
@@ -263,6 +264,16 @@ var button = d3.button()
     .on('press', function(d, i) { clearAll(); })
     .on('release', function(d, i) { console.log("Released", d, i, this.parentNode)});
 
+/*
+svg.append("foreignObject")
+    .attr("y", height - 30)
+    .attr("x", 250)
+    .attr("width", 100)
+    .attr("height", 30)
+  .append("xhtml:div")
+    .style("font", "14px 'Helvetica Neue'")
+    .html("<input type='checkbox' id ='myCheckbox'> Per Capita");*/
+
 // Add buttons
 var buttons = svg.selectAll('.button')
     .attr("id", dataDisplays.id)
@@ -286,6 +297,23 @@ function clearAll() {
 }
 
 /* MAP BUTTON END */
+
+/* CHECKBOX START */
+
+var update = function () { var checked3 = checkBox3.checked(); per_capita = !per_capita; };
+
+var checkBox3 = new d3CheckBox();
+checkBox3.x(255).y(height - 32).checked(true).clickEvent(update);
+svg.call(checkBox3);
+
+svg.append("text")
+    .text("Display emissions per capita")
+    .style("font-family", "Times New Roman")
+    .style("font-size", "12px")
+    .attr("x", 280)
+    .attr("y", height - 19);
+
+/* CHECKBOX END */
 
 // HELP TOOLTIP CODE
 // var button_svg = d3.select('#toggles'),
