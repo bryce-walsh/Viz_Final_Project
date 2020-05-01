@@ -15,26 +15,26 @@
 <h1></h1><h3></h3></br>
 <svg id="map"></svg>
 <svg id="key"></svg>
-<!-- <svg id="toggles"></svg> -->
-<svg id="infowindow"></svg>
+<svg id="barchart"></svg>
 <svg id="slider"></svg>
-<div id="barchart"></div>
 
 <script>
 
 window.onresize = function(){ ready(); }
+
+const FONT = "Times New Roman";
 
 // Title, centered
 var title = d3.select("h1")
     .text("Environmental Impact by Country")
     .style("text-align", "center")
     .style("font-weight", "bold")
-    .style("font-family", "Times New Roman");
+    .style("font-family", FONT);
 
 var subtitle = d3.select("h3")
     .text("And the mismatch between emissions and climate change afflictions")
     .style("text-align", "center")
-    .style("font-family", "Times New Roman");
+    .style("font-family", FONT);
 
 // The svg for map
 var svg = d3.select("#map"),
@@ -65,24 +65,10 @@ var perCapGhgData = d3.map();
 var gainRankData = d3.map();
 var ghgRankData = d3.map();
 var perCapGhgRankData = d3.map();
+var countryNames = d3.map();
 var gainColorScale;
 var ghgColorScale;
 var perCapGhgColorScale;
-
-/*Color Constants
-Original Colors
-const BOTTOM_LEFT = "#5ca166"; //Green
-const TOP_LEFT = "#f0e784"; //Yellow
-const BOTTOM_RIGHT = "#80c7ed"; //Blue
-const TOP_RIGHT = "#992e2e"; //Red
-const NO_DATA = "lightgrey";*/
-
-/*Potential alternative, makes low risk high emissions red
-const BOTTOM_LEFT = "#80c7ed"; //Blue
-const TOP_LEFT = "#992e2e"; //Red
-const BOTTOM_RIGHT = "#f0e784"; //Yellow
-const TOP_RIGHT = "#5ca166"; //Green
-const NO_DATA = "lightgrey";*/
 
 //Potential alternative, maintains property from above but makes it so that high risk high emissions isn't green
 const BOTTOM_LEFT = "#fff1a3"; // Light Pink //Blue
@@ -90,20 +76,6 @@ const TOP_LEFT = "#C7003A"; //Red
 const BOTTOM_RIGHT = "#d6780d"; //Orange
 const TOP_RIGHT = "#900C3E"; // Dark Purple //More Vibrant Yellow
 const NO_DATA = "lightgrey";
-
-/*Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=PRGn&n=11
-const BOTTOM_LEFT = "grey"; //Grey
-const TOP_LEFT = "#40004b"; //Purple
-const BOTTOM_RIGHT = "#00441b" //Green
-const TOP_RIGHT = "#000000"; //Black
-const NO_DATA = "lightgrey";*/
-
-/*Potential alternative adapted from https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=7
-const BOTTOM_LEFT = "#b1b1b1"; //Grey
-const TOP_LEFT = "#8c510a"; //Bin
-const BOTTOM_RIGHT = "#01665e" //Teal
-const TOP_RIGHT = "#000000"; //Black
-const NO_DATA = "white";*/
 
 //NEW COLOR CONSTANT
 //Will work with any color list from https://benjaminbrooke.me/visualizations/bivariate-choropleth-color-generator/
@@ -127,9 +99,9 @@ const GAIN_MAX = 76.1282969142505;
 const GAIN_MIN = 15.9286664168974;
 
 //key constants
-const BASE_X = (keySvg.node().getBoundingClientRect().width * .3);
+const BASE_X = (keySvg.node().getBoundingClientRect().width * .2);
 const SQUARE_SIZE = 23;
-const TEXT_HEIGHT = 42;
+const TEXT_HEIGHT = 50;
 const SPACE = 3;
 
 create_key();
@@ -165,7 +137,7 @@ function ready(error, topo) {
       .attr("d", d3.geoPath()
         .projection(projection)
       )
-      .on('click', displayVals)
+      .on('click', update_barchart_click)
       .on("mouseover", displayTooltip)
       .on("mouseout", hideTooltip)
       .style("stroke", "white")
@@ -226,7 +198,7 @@ d3.selectAll('g.tick')
 
 d3.selectAll("g.tick").selectAll("text")
   .each(function(d, i){
-    d3.select(this).style("font-family", "monospace");
+    d3.select(this).style("font-family", FONT);
     d3.select(this).style("font-size", "12px");
     d3.select(this).style("fill", "black");
   });
@@ -264,17 +236,6 @@ var button = d3.button()
     .on('press', function(d, i) { clearAll(); })
     .on('release', function(d, i) { console.log("Released", d, i, this.parentNode)});
 
-/*
-svg.append("foreignObject")
-    .attr("y", height - 30)
-    .attr("x", 250)
-    .attr("width", 100)
-    .attr("height", 30)
-  .append("xhtml:div")
-    .style("font", "14px 'Helvetica Neue'")
-    .html("<input type='checkbox' id ='myCheckbox'> Per Capita");*/
-
-// Add buttons
 var buttons = svg.selectAll('.button')
     .attr("id", dataDisplays.id)
     .data(dataDisplays)
@@ -313,304 +274,81 @@ svg.call(checkBox3);
 
 svg.append("text")
     .text("Display emissions per capita")
-    .style("font-family", "Times New Roman")
+    .style("font-family", FONT)
     .style("font-size", "12px")
     .attr("x", 280)
     .attr("y", height - 19);
 
 /* CHECKBOX END */
 
-// HELP TOOLTIP CODE
-// var button_svg = d3.select('#toggles'),
-//     width = +button_svg.node().getBoundingClientRect().width,
-//     height = +button_svg.node().getBoundingClientRect().height;
+/* Bar Chart */
 
-// var help = d3.select("body").append("div")
-//                   .attr("class", "tooltip-help")
-//                   .style("opacity", 0);
+  var margin = {top: 5, right: 0, bottom: 0, left: 20},
+      width = 250 - margin.left - margin.right,
+      height = 155 - margin.top - margin.bottom;
 
+  // set the ranges
+  var x = d3.scaleBand()
+            .range([0, width])
+            .padding(0.4);
+  var y = d3.scaleLinear()
+            .range([height, 0]);
+            
+  var barchart = d3.select("#barchart").append("g")
+    .attr("class", "chart_background")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// var description = "<p><b>Combination Matrix:</b> Bloop.</p> \
-//                              <p><b>Emissions:</b> Bloop.</p> \
-//                              <p><b>Risk Index:</b> Bloop.</p>";
+  var data = [{country: " ", value: 0, id: "top"},
+              {country: "  ", value: 0, id: "middle"},
+              {country: "   ", value: 0, id: "bottom"}];
 
-// var risk_title = button_svg.append("g");
-
-// risk_title.append("text")
-//     .attr("text-anchor", "left")
-//     .attr("x", button_svg.node().getBoundingClientRect().width * 0)
-//     .attr("y", button_svg.node().getBoundingClientRect().height * .1)
-//     .style("font-family", "Times New Roman")
-//     .style("font-size", "14px")
-//     .text("Risk Index:");
-
-// risk_title.append("circle")
-//     .attr("cx", button_svg.node().getBoundingClientRect().width * .912)
-//     .attr("cy", button_svg.node().getBoundingClientRect().height * .08)
-//     .attr("r", 7)
-//     .attr("stroke-width","1px")
-//     .attr("stroke", "black")
-//     .attr("fill", "white")
-//     .style("cursor", "pointer")
-//     .on('click', function (d, i) {
-//           help.transition()
-//                .duration(50)
-//                .style("opacity", 1);
-//           help.html(description)
-//                .style("left", (d3.event.pageX + 10) + "px")
-//                .style("top", (d3.event.pageY - 15) + "px");
-//      })
-//      .on('mouseout', function (d, i) {
-//           help.transition()
-//                .duration('50')
-//                .style("opacity", 0);
-//      });
-// risk_title.append("text")
-//     .attr("x", button_svg.node().getBoundingClientRect().width * .905)
-//     .attr("y", button_svg.node().getBoundingClientRect().height * .1)
-//     .style("font-size", "9px")
-//     .attr("fill", "black")
-//     .text("?")
-//     .style("cursor", "pointer")
-//     .on('click', function (d, i) {
-//           help.transition()
-//                .duration(50)
-//                .style("opacity", 1);
-//           help.html(description)
-//                .style("left", (d3.event.pageX + 10) + "px")
-//                .style("top", (d3.event.pageY - 15) + "px");
-//      })
-//      .on('mouseout', function (d, i) {
-//           help.transition()
-//                .duration('50')
-//                .style("opacity", 0);
-//      });
-
-// var emissions_title = button_svg.append("g");
-
-// emissions_title.append("text")
-//     .attr("text-anchor", "left")
-//     .attr("x", button_svg.node().getBoundingClientRect().width * 0)
-//     .attr("y", button_svg.node().getBoundingClientRect().height * .3)
-//     .style("font-family", "Times New Roman")
-//     .style("font-size", "14px")
-//     .text("Emissions:");
-
-// emissions_title.append("circle")
-//     .attr("cx", button_svg.node().getBoundingClientRect().width * .912)
-//     .attr("cy", button_svg.node().getBoundingClientRect().height * .28)
-//     .attr("r", 7)
-//     .attr("stroke-width","1px")
-//     .attr("stroke", "black")
-//     .attr("fill", "white")
-//     .style("cursor", "pointer")
-//     .on('click', function (d, i) {
-//           help.transition()
-//                .duration(50)
-//                .style("opacity", 1);
-//           help.html(description)
-//                .style("left", (d3.event.pageX + 10) + "px")
-//                .style("top", (d3.event.pageY - 15) + "px");
-//      })
-//      .on('mouseout', function (d, i) {
-//           help.transition()
-//                .duration('50')
-//                .style("opacity", 0);
-//      });
-// emissions_title.append("text")
-//     .attr("x", button_svg.node().getBoundingClientRect().width * .905)
-//     .attr("y", button_svg.node().getBoundingClientRect().height * .3)
-//     .style("font-size", "9px")
-//     .attr("fill", "black")
-//     .text("?")
-//     .style("cursor", "pointer")
-//     .on('click', function (d, i) {
-//           help.transition()
-//                .duration(50)
-//                .style("opacity", 1);
-//           help.html(description)
-//                .style("left", (d3.event.pageX + 10) + "px")
-//                .style("top", (d3.event.pageY - 15) + "px");
-//      })
-//      .on('mouseout', function (d, i) {
-//           help.transition()
-//                .duration('50')
-//                .style("opacity", 0);
-//      });
-
-// var combo_title = button_svg.append("g");
-
-// combo_title.append("text")
-//     .attr("text-anchor", "left")
-//     .attr("x", button_svg.node().getBoundingClientRect().width * 0)
-//     .attr("y", button_svg.node().getBoundingClientRect().height * .5)
-//     .style("font-family", "Times New Roman")
-//     .style("font-size", "14px")
-//     .text("Risk vs. Emissions:");
-
-// combo_title.append("circle")
-//     .attr("cx", button_svg.node().getBoundingClientRect().width * .912)
-//     .attr("cy", button_svg.node().getBoundingClientRect().height * .48)
-//     .attr("r", 7)
-//     .attr("stroke-width","1px")
-//     .attr("stroke", "black")
-//     .attr("fill", "white")
-//     .style("cursor", "pointer")
-//     .on('click', function (d, i) {
-//           help.transition()
-//                .duration(50)
-//                .style("opacity", 1);
-//           help.html(description)
-//                .style("left", (d3.event.pageX + 10) + "px")
-//                .style("top", (d3.event.pageY - 15) + "px");
-//      })
-//      .on('mouseout', function (d, i) {
-//           help.transition()
-//                .duration('50')
-//                .style("opacity", 0);
-//      });
-// combo_title.append("text")
-//     .attr("x", button_svg.node().getBoundingClientRect().width * .905)
-//     .attr("y", button_svg.node().getBoundingClientRect().height * .5)
-//     .style("font-size", "9px")
-//     .attr("fill", "black")
-//     .text("?")
-//     .style("cursor", "pointer")
-//     .on('click', function (d, i) {
-//           help.transition()
-//                .duration(50)
-//                .style("opacity", 1);
-//           help.html(description)
-//                .style("left", (d3.event.pageX + 10) + "px")
-//                .style("top", (d3.event.pageY - 15) + "px");
-//      })
-//      .on('mouseout', function (d, i) {
-//           help.transition()
-//                .duration('50')
-//                .style("opacity", 0);
-//      });
-
-
-
-
-//Experimenting with info window
-var info_window_svg = d3.select("#infowindow")
-    width = +info_window_svg.node().getBoundingClientRect().width,
-    height = +info_window_svg.node().getBoundingClientRect().height + 20;
-
-info_window_svg.append("rect")
-  .attr("class", "toggles_background")
-  .attr("width", 175)
-  .attr("height", 180)
-
-// Info Window Text Objects
-info_window_svg.append("text")
-                .attr("id", "country")
-                .attr("text-anchor", "middle")
-                .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
-                .attr("y", info_window_svg.node().getBoundingClientRect().height * 0.1)
-                .style("font-family", "sans-serif")
-                .style("font-weight", "bold")
-                .text("Country Name");
-info_window_svg.append("text")
-                .attr("text-anchor", "middle")
-                .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
-                .attr("y", info_window_svg.node().getBoundingClientRect().height * .225)
-                .style("font-family", "sans-serif")
-                .text("Risk Index, Rank");
-info_window_svg.append("text")
-                .attr("id", "risk_val")
-                .attr("text-anchor", "middle")
-                .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
-                .attr("y", info_window_svg.node().getBoundingClientRect().height * .35)
-                .style("font-family", "sans-serif")
-                .text("Click on Country");
-
-info_window_svg.append("text")
-                .attr("id", "emissions_tag")
-                .attr("text-anchor", "middle")
-                .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
-                .attr("y", info_window_svg.node().getBoundingClientRect().height * .475)
-                .style("font-family", "sans-serif")
-                .text("Emissions (Total), Rank");
-
-info_window_svg.append("text")
-                .attr("id", "emissions_val")
-                .attr("text-anchor", "middle")
-                .attr("x", info_window_svg.node().getBoundingClientRect().width * .40)
-                .attr("y", info_window_svg.node().getBoundingClientRect().height * .6)
-                .style("font-family", "sans-serif")
-                .text("Click on Country");
-
-/* Bar Chart Stuff
-
-var bar_chart_svg = d3.select("#barchart")
-    width = +info_window_svg.node().getBoundingClientRect().width,
-    height = +info_window_svg.node().getBoundingClientRect().height;
-
-var margin = {top: 20, right: 20, bottom: 70, left: 40},
-    width = 600 - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
-
-bar_chart_svg.append("g")
-              .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
-
-var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
-
-var y = d3.scale.linear().range([height, 0]);
-
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom")
-    .tickFormat(d3.time.format("%Y-%m"));
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left")
-    .ticks(10);
-
-d3.csv("bar-data.csv", function(error, data) {
-
-    data.forEach(function(d) {
-        d.date = parseDate(d.date);
-        d.value = +d.value;
-    });
-  
-  x.domain(data.map(function(d) { return d.date; }));
+  // Scale the range of the data in the domains
+  x.domain(data.map(function(d) { return d.country; }));
   y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
-    .selectAll("text")
-      .style("text-anchor", "end")
-      .attr("dx", "-.8em")
-      .attr("dy", "-.55em")
-      .attr("transform", "rotate(-90)" );
-
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Value ($)");
-
-  svg.selectAll("bar")
+  // append the rectangles for the bar chart
+  barchart.selectAll(".bar")
       .data(data)
-    .enter().append("rect")
-      .style("fill", "steelblue")
-      .attr("x", function(d) { return x(d.date); })
-      .attr("width", x.rangeBand())
+      .attr("id", data.id)
+      .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.country); })
+      .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(d.value); })
       .attr("height", function(d) { return height - y(d.value); });
 
-});
-*/
+  // add the x Axis
+  barchart.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .attr("class", "axisB")
+      .call(d3.axisBottom(x));
+
+  // add the y Axis
+  barchart.append("g")
+      .attr("class", "axisL")
+      .call(d3.axisLeft(y).ticks(0));
+
+  d3.select(".axisB").style("opacity", 0);
+  d3.select(".axisL").style("opacity", 0);
+  d3.selectAll(".bar").style("opacity", 0);
+
+
+var help = d3.select("body").append("div")
+                   .attr("class", "tooltip-help")
+                   .style("opacity", 1);
+
+ var description = "<p><b>Risk Index:</b> Summarizes a country's vulnerability to \
+                                          climate change and other global challenges in combination \
+                                          with its readiness to improve resilience. The lower the value, the more the country is at risk.</p> \
+                    <p><b>Emissions:</b> The total greenhouse gas emissions by a country. The per capita display shows \
+                                          tons of CO2 per person, per year. The national total display shows megatons per year.</p> \
+                    <p><b>Risk vs. Emissions:</b> The two datasets plotted against one another. </p>";
+
+help.html(description);
+
+
 
 /*** Country tooltip ***/
 
@@ -626,17 +364,17 @@ function displayTooltip (d){
   emissionsVal = per_capita ? perCapGhgData.get(d.id) : ghgData.get(d.id);
   fixedEmissionsVal = (typeof emissionsVal == 'undefined') ? "No Value" : Math.round((emissionsVal + Number.EPSILON) * 100) / 100;
   //emissionsClarifier = per_capita ? "(Per Capita)" : "(Total)";
-
-  emissionsString = "Emissions" /*+ emissionsClarifier*/ + ": " + fixedEmissionsVal;
+  var emissionsUnit = per_capita ? "tCO2e" : "MtCO2e";
+  emissionsString = "Emissions" /*+ emissionsClarifier*/ + ": " + fixedEmissionsVal + " " + emissionsUnit;
 
   if (display == DisplayType.COMBO) {
     div.html(d.properties.name + "</br>" + riskString + "</br>" +  emissionsString)  
       .style("left", (d3.event.pageX) + "px")   
       .style("top", (d3.event.pageY - 28) + "px")
-      .style("width", 130 + "px")
+      .style("width", 140 + "px")
       .style("height", 45 + "px");
   } else if (display == DisplayType.GAIN) {
-    div.html(d.properties.name + "</br>" + riskString)  
+    div.html(d.properties.name + "</br>" + riskString)
       .style("left", (d3.event.pageX) + "px")   
       .style("top", (d3.event.pageY - 28) + "px")
       .style("width", 120 + "px")
@@ -645,7 +383,7 @@ function displayTooltip (d){
     div.html(d.properties.name + "</br>" + emissionsString)  
       .style("left", (d3.event.pageX) + "px")   
       .style("top", (d3.event.pageY - 28) + "px")
-      .style("width", 120 + "px")
+      .style("width", 140 + "px")
       .style("height", 30 + "px");
   }
   
@@ -673,6 +411,149 @@ function press(d, i) {
     shadow.select('feGaussianBlur').attr('stdDeviation', 0);
   }
 
+function update_barchart_click(d) {
+  var topID = null;
+  var bottomID = null;
+  if (display == DisplayType.GAIN) {
+    d3.select(".tooltip-help").style("visibility", "hidden");
+    d3.select(".axisB").style("opacity", 1);
+    d3.select(".axisL").style("opacity", 1);
+    d3.selectAll(".bar").style("opacity", 1);
+    gainRankData.each(function(v, k) {
+      if (v == 1) {
+        topID = k;
+      } else if (v == 181) {
+        bottomID = k;
+      }
+    });
+    data = [{country: countryNames.get(topID),  value: gainData.get(topID), id: "topR", color: "#DB302D"},
+              {country: countryNames.get(d.id), value: gainData.get(d.id), id: "middleR", color: "lightgrey"},
+              {country: countryNames.get(bottomID), value: gainData.get(bottomID), id: "bottomR", color: "#F5E89D"}];
+  } else if (display == DisplayType.EMISSIONS) {
+    d3.select(".tooltip-help").style("visibility", "hidden");
+    d3.select(".axisB").style("opacity", 1);
+    d3.select(".axisL").style("opacity", 1);
+    d3.selectAll(".bar").style("opacity", 1);
+    ghgRankData.each(function(v, k) {
+      if (v == 1) {
+        topID = k;
+      } else if (v == 191) {
+        bottomID = k;
+      }
+    });
+    data = [{country: countryNames.get(topID),  value: ghgData.get(topID), id: "topE", color: "#BE7000"},
+              {country: countryNames.get(d.id), value: ghgData.get(d.id), id: "middleE", color: "lightgrey"},
+              {country: countryNames.get(bottomID), value: ghgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
+  } else if (display == DisplayType.COMBO) {
+    d3.select(".tooltip-help").style("visibility", "visible");
+    d3.select(".axisB").style("opacity", 0);
+    d3.select(".axisL").style("opacity", 0);
+    d3.selectAll(".bar").style("opacity", 0);
+    return;
+  }
+
+  // Scale the range of the data in the domains
+  x.domain(data.map(function(d) { return d.country; }));
+  y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+  // append the rectangles for the bar chart
+  var bars = barchart.selectAll(".bar")
+                .remove()
+                .exit()
+                .data(data);
+  bars.enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("id", data.id)
+      .attr("x", function(d) { return x(d.country); })
+      .attr("width", x.bandwidth())
+      .attr("y", function(d) { return (height - y(d.value)) < 0 ? y(d.value) - 2 : y(d.value); })
+      .attr("height", function(d) { return (height - y(d.value)) < 0 ? 3 : (height - y(d.value)); })
+      .style("fill", function(d) { return (d.color); });
+
+  // add the x Axis
+  barchart.select(".axisB")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  // add the y Axis
+  barchart.select("axisL")
+      .call(d3.axisLeft(y).ticks(0));
+
+}
+
+function update_barchart_year() {
+  var topID = null;
+  var bottomID = null;
+  var middleID = data[1].country;
+  if (display == DisplayType.GAIN) {
+    d3.select(".tooltip-help").style("visibility", "hidden");
+    d3.select(".axisB").style("opacity", 1);
+    d3.select(".axisL").style("opacity", 1);
+    d3.selectAll(".bar").style("opacity", 1);
+
+    gainRankData.each(function(v, k) {
+      if (v == 1) {
+        topID = k;
+      } else if (v == 181) {
+        bottomID = k;
+      }
+    });
+    data = [{country: countryNames.get(topID),  value: gainData.get(topID), id: "topR", color: "#DB302D"},
+              {country: countryNames.get(middleID), value: gainData.get(middleID), id: "middleR", color: "lightgrey"},
+              {country: countryNames.get(bottomID), value: gainData.get(bottomID), id: "bottomR", color: "#F5E89D"}];
+  } else if (display == DisplayType.EMISSIONS) {
+    d3.select(".tooltip-help").style("visibility", "hidden");
+    d3.select(".axisB").style("opacity", 1);
+    d3.select(".axisL").style("opacity", 1);
+    d3.selectAll(".bar").style("opacity", 1);
+    ghgRankData.each(function(v, k) {
+      if (v == 1) {
+        topID = k;
+      } else if (v == 191) {
+        bottomID = k;
+      }
+    });
+    data = [{country: countryNames.get(topID),  value: ghgData.get(topID), id: "topE", color: "#BE7000"},
+              {country: countryNames.get(middleID), value: ghgData.get(middleID), id: "middleE", color: "lightgrey"},
+              {country: countryNames.get(bottomID), value: ghgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
+  } else if (display == DisplayType.COMBO) {
+    d3.select(".tooltip-help").style("visibility", "visible");
+    d3.select(".axisB").style("opacity", 0);
+    d3.select(".axisL").style("opacity", 0);
+    d3.selectAll(".bar").style("opacity", 0);
+    return;
+  }
+
+  // Scale the range of the data in the domains
+  x.domain(data.map(function(d) { return d.country; }));
+  y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+  // append the rectangles for the bar chart
+  var bars = barchart.selectAll(".bar")
+                .remove()
+                .exit()
+                .data(data);
+  bars.enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("id", data.id)
+      .attr("x", function(d) { return x(d.country); })
+      .attr("width", x.bandwidth())
+      .attr("y", function(d) { return (height - y(d.value)) < 0 ? y(d.value) - 2 : y(d.value); })
+      .attr("height", function(d) { return (height - y(d.value)) < 0 ? 2 : (height - y(d.value)); })
+      .style("fill", function(d) { return (d.color); });
+
+  // add the x Axis
+  barchart.select(".axisB")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  // add the y Axis
+  barchart.select("axisL")
+      .call(d3.axisLeft(y).ticks(0));
+
+}
 
 </script>
 </body>

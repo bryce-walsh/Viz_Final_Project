@@ -8,6 +8,7 @@ function loadData(year) {
   .defer(d3.csv, "Emissions_Data/emissions_rankings.csv", function(d) {  ghgRankData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_per_cap_no_nans.csv", function(d) {perCapGhgData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_per_cap_rankings.csv", function(d) {perCapGhgRankData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "Population_Data/Population_by_country.csv", function(d) { countryNames.set(d.ISO3, d.CountryName); })
   .await(ready);
 }
 
@@ -56,25 +57,25 @@ function create_key() {
     .attr("width", SQUARE_SIZE)
     .attr("height", SQUARE_SIZE)
     .attr("x",  BASE_X + SQUARE_SIZE * x + SPACE * x)
-    .attr("y", keySvg.node().getBoundingClientRect().height - TEXT_HEIGHT - SQUARE_SIZE * y - SPACE * y)
+    .attr("y", keySvg.node().getBoundingClientRect().height*.9 - TEXT_HEIGHT - SQUARE_SIZE * y - SPACE * y)
     .attr("fill", color_matrix[x][y])
     }
   }
   keySvg.append("text")
   .style("fill", "black")
-  .style("font-family", "Times New Roman")
+  .style("font-family", FONT)
     .style("font-size", "15px")
     .attr("y", BASE_X - 10)
-    .attr("x", 0 - BASE_X * .75)
+    .attr("x", 0 - BASE_X * 1.2)
     .attr("text-anchor", "middle")
     .attr("transform", "rotate(270)")
     .text("Emissions");
   keySvg.append("text")
   .style("fill", "black")
-  .style("font-family", "Times New Roman")
+  .style("font-family", FONT)
     .style("font-size", "15px")
-    .attr("x", keySvg.node().getBoundingClientRect().width * .51)
-    .attr("y", keySvg.node().getBoundingClientRect().height)
+    .attr("x", keySvg.node().getBoundingClientRect().width * .41)
+    .attr("y", keySvg.node().getBoundingClientRect().height * .87)
     .attr("text-anchor", "middle")
     .text("Risk Index");
 }
@@ -163,6 +164,7 @@ function dragged(value) {
     }
     // use xVal as drag value
     loadData(year);
+    update_barchart_year();
     handle.attr('cx', cx);
 }
 

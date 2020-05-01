@@ -1,3 +1,36 @@
+.axisB line{
+  stroke: lightgray;
+  stroke-width: 2px;
+}
+
+.axisB path{
+  stroke: lightgray;
+  stroke-width: 2px;
+  font-family: "Times New Roman"
+  font-size: 12px;
+}
+
+.axisB text{
+  fill: black;
+  font-family: "Times New Roman"
+  font-size: 12px;
+} 
+
+.axisL line{
+  stroke: lightgray;
+  stroke-width: 2px;
+}
+
+.axisL path{
+  stroke: lightgray;
+  stroke-width: 2px;
+}
+
+.axisL text{
+  fill: black;
+  font-family: "Times New Roman"
+  font-size: 12px;
+} 
 /* SLIDER START */
 #slider {
   position: absolute;
@@ -47,28 +80,32 @@ h3 {
 
 div.tooltip-help {
      position: absolute;
-     text-align: center;
+     text-align: justify;
      padding-left: 15px;
      padding-right: 15px;
      background: white;
      color: black;
-     border: 1px solid black;
-     border-radius: 8px;
      pointer-events: none;
-     font-size: 12px;
+     font-family: "Times New Roman";
+     font-size: 13px;
+     width: 23vw;
+     height: 29vh;
+     top: 45vh;
+     left: 3vw;
+     visibility: visible;
 }
 
 div.tooltip {
     position: absolute;    
-    text-align: center;      
+    text-align: center;
     padding: 5px;
     font-size: 12px;
-    font-family: "Times New Roman", Times, serif;; 
+    font-family: "Times New Roman"; 
     color: white;
     background: gray;
     border: 0px;    
     border-radius: 8px; 
-    pointer-events: none;    
+    pointer-events: none;
 }
 
 .background {
@@ -87,7 +124,7 @@ div.tooltip {
 
 .zoom text {
   font-size: 11px;
-  font-family: "Times New Roman";
+  font-family: "Times New Roman"
   fill: black;
   pointer-events: none;
   cursor: pointer;
@@ -111,7 +148,7 @@ div.tooltip {
 
 .button text {
   font-size: 11px;
-  font-family: "Times New Roman";
+  font-family: "Times New Roman"
   fill: black;
   pointer-events: none;
   cursor: pointer;
@@ -126,18 +163,6 @@ div.tooltip {
   pointer-events: all;
 }
 
-.riskGradient {
-  fill:   none;
-  stroke: url(#gradientR);
-  stroke-width: 10;
-}
-
-.EmissionsGradient {
-  fill:   none;
-  stroke: url(#gradientE);
-  stroke-width: 10;
-}
-
 #map{
     position: absolute;
     top: 15vh;
@@ -146,7 +171,7 @@ div.tooltip {
     height: 65vh;
 }
 
-#toggles{
+#key{
     position: absolute;
     top: 14vh;
     left: 5vw;
@@ -155,10 +180,10 @@ div.tooltip {
     height: 30vh;
 }
 
-#infowindow{
+#barchart{
     position: absolute;
     top: 53vh;
     left: 5vw;
-    width: 20vw;
-    height: 25vh;
+    width: 25vw;
+    height: 30vh;
 } 

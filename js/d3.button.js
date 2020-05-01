@@ -94,6 +94,7 @@ d3.button = function() {
     } else if (d.label == "Risk vs. Emissions") {
       dispCombo();
     }
+    update_barchart_year();
   }
 
   function press(d, i) {

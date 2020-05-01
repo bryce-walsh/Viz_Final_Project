@@ -47,7 +47,7 @@ function d3CheckBox () {
 
         g.on("click", function () {
             checked = !checked;
-
+            update_barchart_year();
             mark.style("opacity", (checked)? 1 : 0);
 
             if(clickEvent)
