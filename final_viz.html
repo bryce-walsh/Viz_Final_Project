@@ -63,6 +63,7 @@ var zoom = d3.zoom()
     .on("zoom", zoomed);
 var g = svg.append("g");
 svg.call(zoom);
+d3.select("svg").on("dblclick.zoom", null);
 
 // Data and color scale
 var riskData = d3.map();
