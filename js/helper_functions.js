@@ -2,9 +2,9 @@
 function loadData(year) {
   d3.queue()
   .defer(d3.json, "js/world.geojson")
-  .defer(d3.csv, "ND_GAIN_Data/gain/gain_no_nans.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "ND_GAIN_Data/gain/risk.csv", function(d) {  gainData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/Emissions_with_ISO3.csv", function(d) { ghgData.set(d.ISO3, +d[year]); })
-  .defer(d3.csv, "ND_GAIN_Data/gain/gain_rankings.csv", function(d) {  gainRankData.set(d.ISO3, +d[year]); })
+  .defer(d3.csv, "ND_GAIN_Data/gain/risk_rankings.csv", function(d) {  gainRankData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_rankings.csv", function(d) {  ghgRankData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_per_cap_no_nans.csv", function(d) {perCapGhgData.set(d.ISO3, +d[year]); })
   .defer(d3.csv, "Emissions_Data/emissions_per_cap_rankings.csv", function(d) {perCapGhgRankData.set(d.ISO3, +d[year]); })
@@ -17,10 +17,8 @@ function set_up_color_scales() {
   for (i = 0; i < color_matrix.length; i++) {
     gainRange.push(color_matrix[i][0])
   }
-  gainRange = gainRange.reverse()
   gainColorScale = d3.scaleQuantile()
               .domain([GAIN_MIN, GAIN_MAX])
-              //Right to Left because GAIN index is backwards from risk
               .range(gainRange);
   ghgColorScale =  d3.scaleQuantile()
               .domain([EMISSIONS_MIN, EMISSIONS_MAX])
@@ -222,7 +220,7 @@ function fillCountryColor() {
           if (typeof ghgVal == 'undefined' || typeof gainVal == 'undefined' || typeof perCapGhgVal == 'undefined') {
             return NO_DATA;
           } else {
-            gainCoordinate = gainQuantileArray.length - valueToIndex(gainVal, gainQuantileArray);
+            gainCoordinate = valueToIndex(gainVal, gainQuantileArray);
             ghgCoordinate = displayPerCap ? valueToIndex(perCapGhgVal, perCapQuantileArray): valueToIndex(ghgVal, ghgQuantileArray); 
             return color_matrix[gainCoordinate][ghgCoordinate];
           } 
