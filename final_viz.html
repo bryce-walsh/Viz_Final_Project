@@ -36,12 +36,6 @@ var subtitle = d3.select("h3")
     .style("text-align", "center")
     .style("font-family", FONT);
 
-var sources = d3.select("body").append("div")
-                   .attr("class", "sources")
-                   .style("opacity", 1);
-  sources.html("<p>Sources: https://gain.nd.edu/our-work/country-index/, http://datasets.wri.org/dataset/cait-country;<br> \
-                                   Authors: Margo Urheim, Bryce Walsh, and Mike Pine</p>");
-
 // The svg for map
 var svg = d3.select("#map"),
   width = +svg.node().getBoundingClientRect().width,
@@ -65,14 +59,14 @@ var g = svg.append("g");
 svg.call(zoom);
 
 // Data and color scale
-var gainData = d3.map();
+var riskData = d3.map();
 var ghgData = d3.map();
 var perCapGhgData = d3.map();
-var gainRankData = d3.map();
+var riskRankData = d3.map();
 var ghgRankData = d3.map();
 var perCapGhgRankData = d3.map();
 var countryNames = d3.map();
-var gainColorScale;
+var riskColorScale;
 var ghgColorScale;
 var perCapGhgColorScale;
 
@@ -101,8 +95,8 @@ const EMISSIONS_MIN = -85.62;
 const EMISSIONS_PER_CAP_MAX = 70;
 const EMISSIONS_PER_CAP_MIN = 0;
 
-const GAIN_MAX = 84.07; 
-const GAIN_MIN = 23.87;
+const RISK_MAX = 84.07; 
+const RISK_MIN = 23.87;
 
 //key constants
 const BASE_X = (keySvg.node().getBoundingClientRect().width * .2);
@@ -117,7 +111,7 @@ create_key();
 loadData(2016);
 const DisplayType = {
    EMISSIONS: 1,
-   GAIN: 2,
+   RISK: 2,
    COMBO: 3
 };
 var per_capita = true;
@@ -272,12 +266,7 @@ function clearAll() {
 
 /* CHECKBOX START */
 
-var update = function () { 
-        var checked3 = checkBox3.checked(); 
-        per_capita = !per_capita; 
-        reload_map(); 
-        update_barchart_year();
-      };
+var update = function () { var checked3 = checkBox3.checked(); per_capita = !per_capita; reload_map()};
 
 var checkBox3 = new d3CheckBox();
 checkBox3.x(255).y(height - 32).checked(true).clickEvent(update);
@@ -373,33 +362,33 @@ function displayTooltip (d){
       .duration(200)    
       .style("opacity", .9);    
 
-  gainVal = gainData.get(d.id);
-  fixedGainVal = (typeof gainVal == 'undefined') ? "No Value" : Math.round((gainVal + Number.EPSILON) * 100) / 100;
-  riskString = fixedGainVal;
+  riskVal = riskData.get(d.id);
+  fixedGainVal = (typeof riskVal == 'undefined') ? "No Value" : Math.round((riskVal + Number.EPSILON) * 100) / 100;
+  riskString = "Risk Index: " + fixedGainVal;
   
   emissionsVal = per_capita ? perCapGhgData.get(d.id) : ghgData.get(d.id);
   fixedEmissionsVal = (typeof emissionsVal == 'undefined') ? "No Value" : Math.round((emissionsVal + Number.EPSILON) * 100) / 100;
   //emissionsClarifier = per_capita ? "(Per Capita)" : "(Total)";
   var emissionsUnit = per_capita ? "tCO2e" : "MtCO2e";
-  emissionsString = fixedEmissionsVal + " " + emissionsUnit;
+  emissionsString = "Emissions" /*+ emissionsClarifier*/ + ": " + fixedEmissionsVal + " " + emissionsUnit;
 
   if (display == DisplayType.COMBO) {
-    div.html(d.properties.name + "</br>" + "Risk: " + riskString + "</br>" + "Emissions: " + emissionsString)  
+    div.html(d.properties.name + "</br>" + riskString + "</br>" +  emissionsString)  
       .style("left", (d3.event.pageX) + "px")   
       .style("top", (d3.event.pageY - 28) + "px")
       .style("width", 140 + "px")
       .style("height", 45 + "px");
-  } else if (display == DisplayType.GAIN) {
+  } else if (display == DisplayType.RISK) {
     div.html(d.properties.name + "</br>" + riskString)
       .style("left", (d3.event.pageX) + "px")   
       .style("top", (d3.event.pageY - 28) + "px")
-      .style("width", 70 + "px")
+      .style("width", 120 + "px")
       .style("height", 30 + "px");
   } else if (display == DisplayType.EMISSIONS) {
     div.html(d.properties.name + "</br>" + emissionsString)  
       .style("left", (d3.event.pageX) + "px")   
       .style("top", (d3.event.pageY - 28) + "px")
-      .style("width", 100 + "px")
+      .style("width", 140 + "px")
       .style("height", 30 + "px");
   }
   
@@ -428,54 +417,40 @@ function press(d, i) {
   }
 
 function update_barchart_click(d) {
-  var midColor = g.select("." + d.id).attr("fill");
   var topID = null;
   var bottomID = null;
-  if (display == DisplayType.GAIN) {
+  if (display == DisplayType.RISK) {
     d3.select(".tooltip-help").style("visibility", "hidden");
     d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
-    gainRankData.each(function(v, k) {
+    riskRankData.each(function(v, k) {
       if (v == 1) {
         topID = k;
       } else if (v == 181) {
         bottomID = k;
       }
     });
-    data = [{country: countryNames.get(topID),  value: gainData.get(topID), id: "topR", color: "#DB302D"},
-              {country: countryNames.get(d.id), value: gainData.get(d.id), id: "middleR", color: midColor},
-              {country: countryNames.get(bottomID), value: gainData.get(bottomID), id: "bottomR", color: "#F5E89D"}];
+    data = [{country: countryNames.get(topID),  value: riskData.get(topID), id: "topR", color: "#DB302D"},
+              {country: countryNames.get(d.id), value: riskData.get(d.id), id: "middleR", color: "lightgrey"},
+              {country: countryNames.get(bottomID), value: riskData.get(bottomID), id: "bottomR", color: "#F5E89D"}];
   } else if (display == DisplayType.EMISSIONS) {
     d3.select(".tooltip-help").style("visibility", "hidden");
     d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
-    if (per_capita) {
-      perCapGhgRankData.each(function(v, k) {
-        if (v == 1) {
-          topID = k;
-        } else if (v == 191) {
-          bottomID = k;
-        }
-      });
-      data = [{country: countryNames.get(topID),  value: perCapGhgData.get(topID), id: "topE", color: "#BE7000"},
-                {country: countryNames.get(d.id), value: perCapGhgData.get(d.id), id: "middleE", color: midColor},
-                {country: countryNames.get(bottomID), value: perCapGhgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
-    } else {
-      ghgRankData.each(function(v, k) {
-        if (v == 1) {
-          topID = k;
-        } else if (v == 191) {
-          bottomID = k;
-        }
-      });
-      data = [{country: countryNames.get(topID),  value: ghgData.get(topID), id: "topE", color: "#BE7000"},
-                {country: countryNames.get(d.id), value: ghgData.get(d.id), id: "middleE", color: midColor},
-                {country: countryNames.get(bottomID), value: ghgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
-    }
+    ghgRankData.each(function(v, k) {
+      if (v == 1) {
+        topID = k;
+      } else if (v == 191) {
+        bottomID = k;
+      }
+    });
+    data = [{country: countryNames.get(topID),  value: ghgData.get(topID), id: "topE", color: "#BE7000"},
+              {country: countryNames.get(d.id), value: ghgData.get(d.id), id: "middleE", color: "lightgrey"},
+              {country: countryNames.get(bottomID), value: ghgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
   } else if (display == DisplayType.COMBO) {
     d3.select(".tooltip-help").style("visibility", "visible");
     d3.select(".barchart_title").style("visibility", "hidden");
@@ -519,53 +494,39 @@ function update_barchart_year() {
   var topID = null;
   var bottomID = null;
   var middleID = data[1].country;
-  var midColor = data[1].color;
-  if (display == DisplayType.GAIN) {
+  if (display == DisplayType.RISK) {
     d3.select(".tooltip-help").style("visibility", "hidden");
     d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
 
-    gainRankData.each(function(v, k) {
+    riskRankData.each(function(v, k) {
       if (v == 1) {
         topID = k;
       } else if (v == 181) {
         bottomID = k;
       }
     });
-    data = [{country: countryNames.get(topID),  value: gainData.get(topID), id: "topR", color: "#DB302D"},
-              {country: countryNames.get(middleID), value: gainData.get(middleID), id: "middleR", color: midColor},
-              {country: countryNames.get(bottomID), value: gainData.get(bottomID), id: "bottomR", color: "#F5E89D"}];
+    data = [{country: countryNames.get(topID),  value: riskData.get(topID), id: "topR", color: "#DB302D"},
+              {country: countryNames.get(middleID), value: riskData.get(middleID), id: "middleR", color: "lightgrey"},
+              {country: countryNames.get(bottomID), value: riskData.get(bottomID), id: "bottomR", color: "#F5E89D"}];
   } else if (display == DisplayType.EMISSIONS) {
     d3.select(".tooltip-help").style("visibility", "hidden");
     d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
-    if (per_capita) {
-      perCapGhgRankData.each(function(v, k) {
-        if (v == 1) {
-          topID = k;
-        } else if (v == 191) {
-          bottomID = k;
-        }
-      });
-      data = [{country: countryNames.get(topID),  value: perCapGhgData.get(topID), id: "topE", color: "#BE7000"},
-                {country: countryNames.get(middleID), value: perCapGhgData.get(middleID), id: "middleE", color: midColor},
-                {country: countryNames.get(bottomID), value: perCapGhgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
-    } else {
-      ghgRankData.each(function(v, k) {
-        if (v == 1) {
-          topID = k;
-        } else if (v == 191) {
-          bottomID = k;
-        }
-      });
-      data = [{country: countryNames.get(topID),  value: ghgData.get(topID), id: "topE", color: "#BE7000"},
-                {country: countryNames.get(middleID), value: ghgData.get(middleID), id: "middleE", color: midColor},
-                {country: countryNames.get(bottomID), value: ghgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
-    }
+    ghgRankData.each(function(v, k) {
+      if (v == 1) {
+        topID = k;
+      } else if (v == 191) {
+        bottomID = k;
+      }
+    });
+    data = [{country: countryNames.get(topID),  value: ghgData.get(topID), id: "topE", color: "#BE7000"},
+              {country: countryNames.get(middleID), value: ghgData.get(middleID), id: "middleE", color: "lightgrey"},
+              {country: countryNames.get(bottomID), value: ghgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
   } else if (display == DisplayType.COMBO) {
     d3.select(".tooltip-help").style("visibility", "visible");
     d3.select(".barchart_title").style("visibility", "hidden");
