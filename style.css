@@ -95,6 +95,24 @@ div.tooltip-help {
      visibility: visible;
 }
 
+div.barchart_title {
+     position: absolute;
+     text-align: center;
+     padding-left: 15px;
+     padding-right: 15px;
+     background: white;
+     color: black;
+     pointer-events: none;
+     font-family: "Times New Roman";
+     font-size: 12px;
+     width: 19vw;
+     height: 5vh;
+     top: 45vh;
+     left: 5vw;
+     font-style: italic;
+     visibility: hidden;
+}
+
 div.tooltip {
     position: absolute;    
     text-align: center;

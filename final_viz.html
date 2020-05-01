@@ -283,6 +283,11 @@ svg.append("text")
 
 /* Bar Chart */
 
+  var barchart_title = d3.select("body").append("div")
+                   .attr("class", "barchart_title")
+                   .style("opacity", 1);
+  barchart_title.html("<p>Click on a country to compare it with the worst and best countries in this category.</p>");
+
   var margin = {top: 5, right: 0, bottom: 0, left: 20},
       width = 250 - margin.left - margin.right,
       height = 155 - margin.top - margin.bottom;
@@ -416,6 +421,7 @@ function update_barchart_click(d) {
   var bottomID = null;
   if (display == DisplayType.GAIN) {
     d3.select(".tooltip-help").style("visibility", "hidden");
+    d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
@@ -431,6 +437,7 @@ function update_barchart_click(d) {
               {country: countryNames.get(bottomID), value: gainData.get(bottomID), id: "bottomR", color: "#F5E89D"}];
   } else if (display == DisplayType.EMISSIONS) {
     d3.select(".tooltip-help").style("visibility", "hidden");
+    d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
@@ -446,6 +453,7 @@ function update_barchart_click(d) {
               {country: countryNames.get(bottomID), value: ghgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
   } else if (display == DisplayType.COMBO) {
     d3.select(".tooltip-help").style("visibility", "visible");
+    d3.select(".barchart_title").style("visibility", "hidden");
     d3.select(".axisB").style("opacity", 0);
     d3.select(".axisL").style("opacity", 0);
     d3.selectAll(".bar").style("opacity", 0);
@@ -488,6 +496,7 @@ function update_barchart_year() {
   var middleID = data[1].country;
   if (display == DisplayType.GAIN) {
     d3.select(".tooltip-help").style("visibility", "hidden");
+    d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
@@ -504,6 +513,7 @@ function update_barchart_year() {
               {country: countryNames.get(bottomID), value: gainData.get(bottomID), id: "bottomR", color: "#F5E89D"}];
   } else if (display == DisplayType.EMISSIONS) {
     d3.select(".tooltip-help").style("visibility", "hidden");
+    d3.select(".barchart_title").style("visibility", "visible");
     d3.select(".axisB").style("opacity", 1);
     d3.select(".axisL").style("opacity", 1);
     d3.selectAll(".bar").style("opacity", 1);
@@ -519,6 +529,7 @@ function update_barchart_year() {
               {country: countryNames.get(bottomID), value: ghgData.get(bottomID), id: "bottomE", color: "#F5E89D"}];
   } else if (display == DisplayType.COMBO) {
     d3.select(".tooltip-help").style("visibility", "visible");
+    d3.select(".barchart_title").style("visibility", "hidden");
     d3.select(".axisB").style("opacity", 0);
     d3.select(".axisL").style("opacity", 0);
     d3.selectAll(".bar").style("opacity", 0);
