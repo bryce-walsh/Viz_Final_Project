@@ -215,6 +215,7 @@ function fillCountryColor() {
   var gainQuantileArray = getQuantileArray(gainData.values());
   var perCapQuantileArray = getQuantileArray(perCapGhgData.values());
   g.selectAll("path")
+    .attr("class", function (d) { return d.id; })
     .attr("fill", function (d) {
           ghgVal = ghgData.get(d.id);
           gainVal = gainData.get(d.id);
@@ -231,6 +232,7 @@ function fillCountryColor() {
 function fillGainColor() {
   var gainMidpoint = average(gainData.values());
   g.selectAll("path")
+    .attr("class", function (d) { return d.id; })
     .attr("fill", function (d) {
           if (typeof gainData.get(d.id) == 'undefined') {
             return NO_DATA;
@@ -242,6 +244,7 @@ function fillGainColor() {
 function fillEmissionsColor() {
   displayPerCap = per_capita;
   g.selectAll("path")
+    .attr("class", function (d) { return d.id; })
     .attr("fill", function (d) {
           ghgVal = ghgData.get(d.id);
           perCapGhgVal = perCapGhgData.get(d.id);
