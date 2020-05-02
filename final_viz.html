@@ -279,6 +279,7 @@ var update = function () {
         per_capita = !per_capita; 
         reload_map(); 
         update_barchart_year();
+        update_barchart_yaxis();
       };
 
 var checkBox3 = new d3CheckBox();
@@ -301,7 +302,7 @@ svg.append("text")
                    .style("opacity", 1);
   barchart_title.html("<p>Click on a country to compare it with the highest and lowest countries in this category.</p>");
 
-  var margin = {top: 5, right: 0, bottom: 0, left: 20},
+  var margin = {top: 5, right: 0, bottom: 0, left: 60},
       width = 250 - margin.left - margin.right,
       height = 155 - margin.top - margin.bottom;
 
@@ -346,7 +347,20 @@ svg.append("text")
   // add the y Axis
   barchart.append("g")
       .attr("class", "axisL")
-      .call(d3.axisLeft(y).ticks(0));
+      .call(d3.axisLeft(y.nice()));
+
+  // add label for y Axis
+  barchart.append("text")
+  .style("fill", "black")
+  .style("font-family", FONT)
+  .style("font-size", "15px")
+  .attr("id", "y_axis_label")
+  .attr("y", 0 - margin.left + 10)
+  .attr("x",0 - (height / 2))
+  .attr("text-anchor", "middle")
+  .attr("transform", "rotate(270)")
+  .text("tCO2e")
+  .style("opacity", 0);
 
   d3.select(".axisB").style("opacity", 0);
   d3.select(".axisL").style("opacity", 0);
@@ -361,7 +375,7 @@ var help = d3.select("body").append("div")
                                           climate change and other global challenges in combination \
                                           with its readiness to improve resilience. The higher the value, the more the country is at risk.</p> \
                     <p><b>Emissions:</b> The total greenhouse gas emissions by a country. The per capita display shows \
-                                           metric tons of CO2 equivalent per person, per year. The national total display shows metric megatons per year.</p> \
+                                           metric tons of CO2 equivalent (tCO2e) per person, per year. The national total display shows metric megatons CO2 Equivalent (MtCO2e) per year.</p> \
                     <p><b>Risk vs. Emissions:</b> The two datasets plotted against one another. </p>";
 
 help.html(description);
@@ -512,8 +526,8 @@ function update_barchart_click(d) {
       .call(d3.axisBottom(x));
 
   // add the y Axis
-  barchart.select("axisL")
-      .call(d3.axisLeft(y).ticks(0));
+  d3.select(".axisL")
+      .call(d3.axisLeft(y.nice()));
 
 }
 
@@ -605,10 +619,32 @@ function update_barchart_year() {
       .call(d3.axisBottom(x));
 
   // add the y Axis
-  barchart.select("axisL")
-      .call(d3.axisLeft(y).ticks(0));
-
+  d3.select(".axisL")
+      .call(d3.axisLeft(y.nice()));
 }
+
+function update_barchart_yaxis() {
+    switch (display) {
+      case DisplayType.EMISSIONS:
+        var label = per_capita ? "tCO2e" : "MtCO2e";
+        var offset = per_capita ? 25 : 10 
+        d3.select("#y_axis_label")
+          .style("opacity", 1)
+          .attr("y", 0 - margin.left + offset)
+          .text(label);
+        break;
+      case DisplayType.RISK:
+        d3.select("#y_axis_label")
+          .style("opacity", 1)
+          .attr("y", 0 - margin.left + 25)
+          .text("Risk Index");
+        break;
+      case DisplayType.COMBO:
+        d3.select("#y_axis_label")
+          .style("opacity", 0);
+    }
+}
+
 
 </script>
 </body>

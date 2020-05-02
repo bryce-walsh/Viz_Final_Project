@@ -95,6 +95,7 @@ d3.button = function() {
       dispCombo();
     }
     update_barchart_year();
+    update_barchart_yaxis();
   }
 
   function press(d, i) {

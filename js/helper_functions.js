@@ -261,7 +261,6 @@ function fillEmissionsColor() {
 /********** Change map display *********/
 
 function dispGain(){
-
     display = DisplayType.RISK;
     var maxRisk = d3.select('#Max_Risk')
                   .attr('opacity', 100)
